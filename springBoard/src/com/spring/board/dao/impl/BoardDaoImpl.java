@@ -1,7 +1,5 @@
 package com.spring.board.dao.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import com.spring.board.dao.BoardDao;
 import com.spring.board.vo.BoardVo;
 import com.spring.board.vo.CodeVo;
-import com.spring.board.vo.PageVo;
+import com.spring.board.vo.RecruitVo;
 import com.spring.board.vo.UserVo;
 
 @Repository
@@ -94,16 +92,17 @@ public class BoardDaoImpl implements BoardDao{
 		// TODO Auto-generated method stub
 		return sqlSession.selectOne("user.userSelect", userVo);
 	}
-//	@Override
-//	public List<BoardVo> mbtiList() throws Exception {
-//		// TODO Auto-generated method stub
-//		return sqlSession.selectList("board.mbtiList");
-//	}
+	//MBTI TEST
 	@Override
 	public List<BoardVo> mbtiList(int pageNo) throws Exception {
 		// TODO Auto-generated method stub
 		return sqlSession.selectList("board.mbtiList", pageNo);
 	}
-	
+	//입사지원 로그인
+	@Override
+	public int login(RecruitVo recruitVo) throws Exception {
+		// TODO Auto-generated method stub
+		return sqlSession.insert("recruit.login", recruitVo);
+	}
 	
 }

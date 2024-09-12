@@ -81,9 +81,6 @@ public class MbtiController {
 			
 			//각 문항별 radio 선택값에 따른 점수 계산: ex) E문항, 매우 동의(1)->E+3점 <-> 매우 비동의(7)->I+3점
 			scoreCal(score, scores, first, second);
-//			if(question.contains(first+second)) {
-//				scoreCal(score, scores, first, second);
-//			}
 		}
 		System.out.println("점수 계산 : E" + scores.get("E") + ",I" + scores.get("I")
 						+ ",N" + scores.get("N") + ",S" + scores.get("S")

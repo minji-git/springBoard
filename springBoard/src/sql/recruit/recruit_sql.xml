@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="recruit">
+    
+    <resultMap type="com.spring.board.vo.RecruitVo" id="recruitVo">
+    	<result property="seq" 	column="SEQ"/>
+    	<result property="name" 	column="NAME"/>
+    	<result property="birth" 	column="BIRTH"/>
+    	<result property="field3" column="FIELD3"/>
+    	<result property="phone" column="PHONE"/>
+    	<result property="email" column="EMAIL"/>
+    	<result property="addr" column="ADDR"/>
+    	<result property="location" column="LOCATION"/>
+    	<result property="workType" column="WORK_TYPE"/>
+    	<result property="submit" column="SUBMIT"/>
+    </resultMap>
+
+    
+    <select id="login" parameterType="com.spring.board.vo.RecruitVo">
+	 	INSERT INTO 
+	 		RECRUIT
+ 			(SEQ
+ 			, NAME
+ 			, BIRTH
+ 			, FIELD3
+ 			, PHONE
+ 			, EMAIL
+ 			, ADDR
+ 			, LOCATION
+ 			, WORK_TYPE
+ 			, SUBMIT
+ 			)
+		VALUES 
+			((SELECT TO_NUMBER(NVL(MAX(SEQ),0)+1) 
+			  FROM RECRUIT)
+			, #{name}
+			, #{birth}
+			, #{field3}
+			, #{phone}
+			, #{email}
+			, #{addr}
+			, #{location}
+			, #{workType}
+			, #{submit})	
+    </select>
+    	
+  
+</mapper>
