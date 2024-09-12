@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="user">
+	
+    <resultMap type="com.spring.board.vo.UserVo" id="userVo">
+    	<result property="userId" 	column="USER_ID"/>
+    	<result property="userPw" 	column="USER_PW"/>
+    	<result property="userName" 	column="USER_NAME"/>
+    	<result property="userPhone1" column="USER_PHONE1"/>
+    	<result property="userPhone2" column="USER_PHONE2"/>
+    	<result property="userPhone3" column="USER_PHONE3"/>
+    	<result property="userAddr1" column="USER_ADDR1"/>
+    	<result property="userAddr2" column="USER_ADDR2"/>
+    	<result property="userCompany" column="USER_COMPANY"/>
+    </resultMap>
+    
+    <resultMap type="com.spring.board.vo.CodeVo" id="codeVo">
+    	<result property="codeType"	column="CODE_TYPE"/>
+    	<result property="codeId" 	column="CODE_ID"/>
+    	<result property="codeName" 	column="CODE_NAME"/>
+    </resultMap>
+    
+    
+    <select id="selectId" parameterType="com.spring.board.vo.UserVo" resultType="Integer">
+	 	SELECT
+	      	COUNT(*) AS ID_CNT
+		FROM 
+			USER_INFO
+		WHERE 
+			USER_ID = #{userId}
+    </select>
+    	
+	<select id="phoneList" resultMap="codeVo">
+    	SELECT CODE_TYPE
+	    	, CODE_ID
+	    	, CODE_NAME 
+		FROM COM_CODE
+		WHERE CODE_TYPE = 'phone'
+    </select>
+    
+    <select id="userInsert" parameterType="com.spring.board.vo.UserVo">
+    	INSERT INTO 
+    		USER_INFO
+    		(USER_ID
+    		, USER_PW
+    		, USER_NAME
+    		, USER_PHONE1
+    		, USER_PHONE2
+    		, USER_PHONE3
+    		, USER_ADDR1
+    		, USER_ADDR2
+    		, USER_COMPANY
+    		)
+		VALUES 
+			(#{userId}
+			, #{userPw}
+			, #{userName}
+			, #{userPhone1}
+			, #{userPhone2}
+			, #{userPhone3}
+			, #{userAddr1,}
+			, #{userAddr2}
+			, #{userCompany}
+			)
+    </select>
+    
+    <select id="userSelect" parameterType="com.spring.board.vo.UserVo" resultMap="userVo">
+    	SELECT 
+    		USER_ID
+    		, USER_PW
+    		, USER_NAME
+    		, USER_PHONE1
+    		, USER_PHONE2
+    		, USER_PHONE3
+    		, USER_ADDR1
+    		, USER_ADDR2
+    		, USER_COMPANY
+		FROM 
+			USER_INFO
+		WHERE 
+			USER_ID = #{userId}
+		AND 
+			USER_PW = #{userPw}
+    </select>
+</mapper>

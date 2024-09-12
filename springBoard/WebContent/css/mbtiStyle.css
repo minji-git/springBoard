@@ -1,0 +1,32 @@
+@charset "UTF-8";
+
+	button, #submit {
+		background-color: #003366;
+		color: white;
+		padding: 5px 10px;
+		border-radius: 5px;
+	}
+	button:hover, #submit:hover {
+		background-color: #6699cc;
+		color : black;
+		cursor: pointer;
+	}
+	/* 버튼 비활성화된 상태 */
+	button:disabled, #submit:disabled {
+		background-color: #cccccc;
+		color: #666666;
+		cursor: default;
+	}
+	.button {
+	}
+	#questions {
+		list-style: none;
+		text-align: center;
+		padding: 30px;
+	}
+	.question {
+		padding : 10px;
+	}
+	.radio {
+		padding : 10px;
+	}
