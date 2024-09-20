@@ -61,11 +61,11 @@ public class RecruitVo {
 	public void setLocation(String location) {
 		this.location = location;
 	}
-	public String getWork_type() {
+	public String getWorkType() {
 		return workType;
 	}
-	public void setWork_type(String work_type) {
-		this.workType = work_type;
+	public void setWorkType(String workType) {
+		this.workType = workType;
 	}
 	public String getSubmit() {
 		return submit;

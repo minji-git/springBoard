@@ -10,16 +10,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.spring.board.HomeController;
 import com.spring.board.service.boardService;
 import com.spring.board.vo.RecruitVo;
-import com.spring.common.CommonUtil;
 
 @Controller
 public class RecruitController {
@@ -37,20 +34,49 @@ public class RecruitController {
 	
 	@RequestMapping(value = "/recruit/loginAction.do", method = RequestMethod.POST)
 	@ResponseBody
-	public String loginAction(Locale locale, @RequestBody RecruitVo recruitVo, HttpSession session
+	public Map<String, Object> loginAction(Locale locale, HttpSession session
+							, RecruitVo recruitVo
 							) throws Exception {
 		
-		System.out.println("recruitVo 이름/번호: " + recruitVo.getName() + recruitVo.getPhone());
+		Map<String, Object> map = new HashMap<String, Object>();
 		
-		int result = boardService.login(recruitVo);
+		//recruitVo 중복확인
+		RecruitVo duplication = boardService.loginChk(recruitVo);
 		
-		Map<String, String> map = new HashMap<String, String>();
-		CommonUtil commonUtil = new CommonUtil();
+		if(duplication != null) {
+			map.put("duplication", "Y");
+			map.put("recruitVo", duplication);
+			
+			//session 로그인 정보 저장
+			session.setAttribute("recruit", duplication);
+			
+		} else {
+			//회원가입
+			recruitVo.setBirth("");
+			recruitVo.setField3("");
+			recruitVo.setEmail("");
+			recruitVo.setAddr("");
+			recruitVo.setLocation("");
+			recruitVo.setWorkType("");
+			recruitVo.setSubmit("");
+			
+			int resultWrite = boardService.login(recruitVo);
+			
+			map.put("duplication", "N");
+			map.put("success", (resultWrite > 0)? "Y" : "N");
+			map.put("recruitVo", recruitVo);
+			
+			//session 로그인 정보 저장
+			session.setAttribute("recruit", recruitVo);
+		}
 		
-		map.put("success", (result > 0) ? "Y" : "N");
-		String callbackMsg = commonUtil.getJsonCallBackString("", map);
+		return map;
+	}
+	
+	@RequestMapping(value = "/recruit/main.do", method = RequestMethod.GET)
+	public String main(Locale locale) {
 		
-		return callbackMsg;
+		return "recruit/main";
 	}
 	
 }

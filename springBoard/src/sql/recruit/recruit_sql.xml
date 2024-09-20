@@ -3,9 +3,9 @@
 <mapper namespace="recruit">
     
     <resultMap type="com.spring.board.vo.RecruitVo" id="recruitVo">
-    	<result property="seq" 	column="SEQ"/>
-    	<result property="name" 	column="NAME"/>
-    	<result property="birth" 	column="BIRTH"/>
+    	<result property="seq" column="SEQ"/>
+    	<result property="name" column="NAME"/>
+    	<result property="birth" column="BIRTH"/>
     	<result property="field3" column="FIELD3"/>
     	<result property="phone" column="PHONE"/>
     	<result property="email" column="EMAIL"/>
@@ -15,6 +15,23 @@
     	<result property="submit" column="SUBMIT"/>
     </resultMap>
 
+    <select id="recruitView" parameterType="com.spring.board.vo.RecruitVo" resultMap="recruitVo">
+    	SELECT
+    		SEQ
+        	, NAME
+			, BIRTH
+			, FIELD3
+			, PHONE
+			, EMAIL
+			, ADDR
+			, LOCATION
+			, WORK_TYPE
+			, SUBMIT
+		FROM
+			RECRUIT
+    	WHERE 	NAME = #{name}
+    	AND 	PHONE  = #{phone}
+    </select>	
     
     <select id="login" parameterType="com.spring.board.vo.RecruitVo">
 	 	INSERT INTO 
@@ -31,7 +48,8 @@
  			, SUBMIT
  			)
 		VALUES 
-			((SELECT TO_NUMBER(NVL(MAX(SEQ),0)+1) 
+			(
+			(SELECT TO_CHAR(NVL(MAX(SEQ),0)+1) 
 			  FROM RECRUIT)
 			, #{name}
 			, #{birth}

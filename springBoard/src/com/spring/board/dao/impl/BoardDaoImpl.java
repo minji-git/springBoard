@@ -98,6 +98,12 @@ public class BoardDaoImpl implements BoardDao{
 		// TODO Auto-generated method stub
 		return sqlSession.selectList("board.mbtiList", pageNo);
 	}
+	//입사지원 중복확인
+	@Override
+	public RecruitVo loginChk(RecruitVo recruitVo) throws Exception {
+		// TODO Auto-generated method stub
+		return sqlSession.selectOne("recruit.recruitView", recruitVo);
+	}
 	//입사지원 로그인
 	@Override
 	public int login(RecruitVo recruitVo) throws Exception {

@@ -11,27 +11,63 @@
 
 	$j(document).ready(function(){
 		
+		//입력 조건 확인
+		//name 한글만 입력
+		$j('#name').on('input', function(){
+			let name = $j(this).val().replace(/[^\u3131-\u318E\uac00-\ud7a3]/g, ''); //한글만 표기
+			$j(this).val(name);
+		});
+		//phone 숫자만 입력
+		$j('#phone').on('input', function(){
+			let phone = $j(this).val().replace(/[^0-9]/g, ''); //숫자만 남김
+			$j('#phone').val(phone);
+		});
+		
+		//입사지원 클릭
 		$j('#login').on("click", function(event){
 			event.preventDefault();
+			console.log($j('.loginForm :input').serialize());
 			
-			let $frm = $j('.loginForm :input');
-			let param = $frm.serialize();
-			console.log(param);
+		    // name 바이트 체크
+			let name = $j('#name').val();
+		    let comBytes = new Blob([name]).size; // byte 수 계산
 			
+		    if (comBytes > 85) {
+				$j('#name').focus();
+				alert("입력 범위를 초과했습니다. 다시 입력하세요.");
+		        return false;
+		    }
+		    
+		    //phone 형식(01-)
+		    let phone = $j('#phone').val();
+		    let start = phone.slice(0,2);
+		    if(start != "01") {
+		    	$j('#phone').focus();
+		    	alert("입력 형식이 올바르지 않습니다. 다시 입력하세요.");
+		    	return false;
+		    }
+		    
+		    //name,phone으로 recruit 중복체크
+		    //중복이면, 일치한 DB 불러와서 저장된 입사지원서로 이동
+		    //없으면, recruitVo 정보 INSERT 후, 입사지원서로 이동
 			$j.ajax({
 				url: "/recruit/loginAction.do",
-				dataType: "json",
-				data : param,
 				type: "POST",
-				success: function(data, textStatus, jqXHR) {
-					if (data.success) {
-	                    alert("회원가입/로그인 성공하셨습니다.");
-	                    location.href = "/recruit/main.do";
-	                } else {
-	                    alert(data.message); // 로그인 실패 시 메시지 출력
-	                    location.href = "/recruit/main.do";
-// 	                    $j('#userPw').val("");
-	                }
+				data : $j('.loginForm :input').serialize(),
+				dataType: "json",
+				success: function(resp, textStatus, jqXHR) {
+					if (resp.duplication == "Y") {
+						alert("기존 입사 지원서로 이동합니다.");
+						location.href="/recruit/main.do?seq="+resp.recruitVo.seq;
+					} else {
+						if (resp.success == "Y") {
+		                    alert("회원가입/로그인 성공했습니다.");
+							location.href="/recruit/main.do?seq="+resp.recruitVo.seq;
+		                } else {
+		                    alert("회원가입/로그인 실패했습니다.");
+		                    return false;
+		                }
+					}
 				}, 
 				error : function(jqXHR, textStatus, errorThrown) {
 					alert("오류 발생 : " + jqXHR + ", " + textStatus + ", " + errorThrown);
@@ -60,7 +96,7 @@
 		</tr>
 		<tr>
 			<td colspan="2" align="center">
-				<input id="login" type="submit" name="login" value="입사지원">
+				<input id="login" type="button" name="login" value="입사지원">
 			</td>
 		</tr>
 	</table>

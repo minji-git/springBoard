@@ -107,6 +107,12 @@ public class boardServiceImpl implements boardService{
 		// TODO Auto-generated method stub
 		return boardDao.mbtiList(pageNo);
 	}
+	//입사지원 중복확인
+	@Override
+	public RecruitVo loginChk(RecruitVo recruitVo) throws Exception {
+		// TODO Auto-generated method stub
+		return boardDao.loginChk(recruitVo);
+	}
 	//입사지원 로그인
 	@Override
 	public int login(RecruitVo recruitVo) throws Exception {

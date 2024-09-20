@@ -37,6 +37,8 @@ public interface BoardDao {
 	public UserVo userSelect(UserVo userVo) throws Exception;
 	//MBTI TEST
 	public List<BoardVo> mbtiList(int pageNo) throws Exception;
+	//입사지원 중복확인
+	public RecruitVo loginChk(RecruitVo recruitVo) throws Exception;
 	//입사지원 로그인
 	public int login(RecruitVo recruitVo) throws Exception;
 }
