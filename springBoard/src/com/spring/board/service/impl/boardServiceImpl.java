@@ -10,6 +10,7 @@ import com.spring.board.dao.BoardDao;
 import com.spring.board.service.boardService;
 import com.spring.board.vo.BoardVo;
 import com.spring.board.vo.CodeVo;
+import com.spring.board.vo.EducationVo;
 import com.spring.board.vo.RecruitVo;
 import com.spring.board.vo.UserVo;
 
@@ -118,6 +119,12 @@ public class boardServiceImpl implements boardService{
 	public int login(RecruitVo recruitVo) throws Exception {
 		// TODO Auto-generated method stub
 	return boardDao.login(recruitVo);
+	}
+
+	@Override
+	public int educationSave(EducationVo educationVo) throws Exception {
+		// TODO Auto-generated method stub
+		return boardDao.educationSave(educationVo);
 	}
 	
 }

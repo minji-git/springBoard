@@ -12,10 +12,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.spring.board.HomeController;
 import com.spring.board.service.boardService;
+import com.spring.board.vo.CareerVo;
+import com.spring.board.vo.CertificateVo;
+import com.spring.board.vo.EducationVo;
 import com.spring.board.vo.RecruitVo;
 
 @Controller
@@ -61,13 +65,14 @@ public class RecruitController {
 			recruitVo.setSubmit("");
 			
 			int resultWrite = boardService.login(recruitVo);
+			duplication = boardService.loginChk(recruitVo);
 			
 			map.put("duplication", "N");
 			map.put("success", (resultWrite > 0)? "Y" : "N");
-			map.put("recruitVo", recruitVo);
+			map.put("recruitVo", duplication);
 			
 			//session 로그인 정보 저장
-			session.setAttribute("recruit", recruitVo);
+			session.setAttribute("recruit", duplication);
 		}
 		
 		return map;
@@ -77,6 +82,33 @@ public class RecruitController {
 	public String main(Locale locale) {
 		
 		return "recruit/main";
+	}
+	
+	@RequestMapping(value = "/recruit/recruitSave.do", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> recruitSave(Locale locale, RecruitVo recruitVo
+										, EducationVo educationVo
+//										, CareerVo careerVo
+//										, CertificateVo certificateVo
+										) throws Exception {
+		
+		System.out.println("recruitVo : " + recruitVo);
+		Map<String, Object> map = new HashMap<String, Object>();
+		
+		int recruit = boardService.login(recruitVo);
+		System.out.println("recruit 수 : " + recruit);
+		map.put("recruit", (recruit > 0) ? "Y" : "N");
+		
+		if (educationVo != null) {
+			educationVo.setSeq(recruitVo.getSeq());
+	        int educationSave = boardService.educationSave(educationVo);
+	        System.out.println("educationSave 수 : " + educationSave);
+	        map.put("education", (educationSave > 0) ? "Y" : "N");
+	    } else {
+	        map.put("education", "N"); // education 데이터가 없거나 유효하지 않음
+	    }
+		
+		return map;
 	}
 	
 }

@@ -57,7 +57,7 @@
 				dataType: "json",
 				success: function(resp, textStatus, jqXHR) {
 					if (resp.duplication == "Y") {
-						alert("기존 입사 지원서로 이동합니다.");
+						alert("저장된 입사 지원서로 이동합니다.");
 						location.href="/recruit/main.do?seq="+resp.recruitVo.seq;
 					} else {
 						if (resp.success == "Y") {

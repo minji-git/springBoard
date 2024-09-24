@@ -14,6 +14,18 @@
     	<result property="workType" column="WORK_TYPE"/>
     	<result property="submit" column="SUBMIT"/>
     </resultMap>
+    <resultMap type="com.spring.board.vo.EducationVo" id="educationVo">
+    	<result property="eduSeq" column="EDU_SEQ"/>
+    	<result property="seq" column="SEQ"/>
+    	<result property="schoolName" column="SCHOOL_NAME"/>
+    	<result property="division" column="DIVISION"/>
+    	<result property="startPeriod" column="START_PERIOD"/>
+    	<result property="endPeriod" column="END_PERIOD"/>
+    	<result property="major" column="MAJOR"/>
+    	<result property="grade" column="GRADE"/>
+    	<result property="location" column="LOCATION"/>
+    </resultMap>
+           
 
     <select id="recruitView" parameterType="com.spring.board.vo.RecruitVo" resultMap="recruitVo">
     	SELECT
@@ -61,6 +73,43 @@
 			, #{workType}
 			, #{submit})	
     </select>
-    	
+    
+    <select id="educationSave" parameterType="com.spring.board.vo.EducationVo">
+    	INSERT INTO 
+    		EDUCATION
+    		(EDU_SEQ
+             , SEQ
+             , SCHOOL_NAME
+             , DIVISION
+             , START_PERIOD
+             , END_PERIOD
+             , MAJOR
+             , END_PERIOD    
+             , MAJOR
+             , GRADE
+             , LOCATION)
+		VALUES
+			(
+			#{eduSeq}
+			, #{seq}
+			, #{schoolName}
+			, #{division}
+			, #{startPeriod}
+			, #{endPeriod}
+			, #{major}
+			, #{grade}
+			, #{location})
+    </select>
   
 </mapper>
+
+
+
+
+
+
+
+
+
+
+

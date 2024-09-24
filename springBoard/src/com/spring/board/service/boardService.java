@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.spring.board.vo.BoardVo;
 import com.spring.board.vo.CodeVo;
+import com.spring.board.vo.EducationVo;
 import com.spring.board.vo.RecruitVo;
 import com.spring.board.vo.UserVo;
 
@@ -41,5 +42,7 @@ public interface boardService {
 	public RecruitVo loginChk(RecruitVo recruitVo) throws Exception;
 	//입사지원 로그인
 	public int login(RecruitVo recruitVo) throws Exception;
+	//학력
+	public int educationSave(EducationVo educationVo) throws Exception;
 }
 
