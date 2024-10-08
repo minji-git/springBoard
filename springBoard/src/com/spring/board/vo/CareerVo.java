@@ -14,7 +14,7 @@ public class CareerVo {
 	public String getCarSeq() {
 		return carSeq;
 	}
-	public void setCar_seq(String carSeq) {
+	public void setCarSeq(String carSeq) {
 		this.carSeq = carSeq;
 	}
 	public String getSeq() {

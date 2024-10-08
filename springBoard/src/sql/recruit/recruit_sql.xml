@@ -25,9 +25,25 @@
     	<result property="grade" column="GRADE"/>
     	<result property="location" column="LOCATION"/>
     </resultMap>
+    <resultMap type="com.spring.board.vo.CareerVo" id="careerVo">
+    	<result property="carSeq" column="CAR_SEQ"/>
+    	<result property="seq" column="SEQ"/>
+    	<result property="compName" column="COMP_NAME"/>
+    	<result property="location" column="LOCATION"/>
+    	<result property="startPeriod" column="START_PERIOD"/>
+    	<result property="endPeriod" column="END_PERIOD"/>
+    	<result property="task" column="TASK"/>
+    	<result property="salary" column="SALARY"/>
+    </resultMap>
+    <resultMap type="com.spring.board.vo.CertificateVo" id="certificateVo">
+    	<result property="certSeq" column="CERT_SEQ"/>
+    	<result property="seq" column="SEQ"/>
+    	<result property="qualifiName" column="QUALIFI_NAME"/>
+    	<result property="acquDate" column="ACQU_DATE"/>
+    	<result property="organizeName" column="ORGANIZE_NAME"/>
+    </resultMap>
            
-
-    <select id="recruitView" parameterType="com.spring.board.vo.RecruitVo" resultMap="recruitVo">
+    <select id="loginChk" parameterType="com.spring.board.vo.RecruitVo" resultMap="recruitVo">
     	SELECT
     		SEQ
         	, NAME
@@ -43,8 +59,23 @@
 			RECRUIT
     	WHERE 	NAME = #{name}
     	AND 	PHONE  = #{phone}
-    </select>	
-    
+    </select>
+    <select id="recruitView" parameterType="string" resultMap="recruitVo">
+    	SELECT
+    		SEQ
+        	, NAME
+			, BIRTH
+			, FIELD3
+			, PHONE
+			, EMAIL
+			, ADDR
+			, LOCATION
+			, WORK_TYPE
+			, SUBMIT
+		FROM
+			RECRUIT
+    	WHERE 	SEQ = #{seq}
+    </select>
     <select id="login" parameterType="com.spring.board.vo.RecruitVo">
 	 	INSERT INTO 
 	 		RECRUIT
@@ -73,7 +104,66 @@
 			, #{workType}
 			, #{submit})	
     </select>
+    <select id="recruitUpdate" parameterType="com.spring.board.vo.RecruitVo">
+	 	UPDATE 
+	 		RECRUIT
+		SET 
+			BIRTH = #{birth}
+			, FIELD3 = #{field3}
+			, EMAIL = #{email}
+			, ADDR = #{addr}
+			, LOCATION = #{location}
+			, WORK_TYPE = #{workType}
+			, SUBMIT = #{submit}
+		WHERE NAME = #{name} 
+		AND PHONE = #{phone}
+    </select>
     
+    <select id="educationView" parameterType="com.spring.board.vo.EducationVo" resultMap="educationVo">
+    	SELECT
+    		EDU_SEQ
+             , SEQ
+             , SCHOOL_NAME
+             , DIVISION
+             , START_PERIOD
+             , END_PERIOD    
+             , MAJOR
+             , GRADE
+             , LOCATION
+		FROM
+			EDUCATION
+    	WHERE	SEQ  = #{seq}
+    	ORDER BY EDU_SEQ ASC
+    </select>
+    <select id="careerView" parameterType="com.spring.board.vo.CareerVo" resultMap="careerVo">
+    	SELECT
+    		CAR_SEQ
+             , SEQ
+             , COMP_NAME
+             , LOCATION
+             , START_PERIOD
+             , END_PERIOD    
+             , TASK
+             , SALARY
+		FROM
+			CAREER
+    	WHERE	SEQ  = #{seq}
+    	ORDER BY CAR_SEQ ASC
+    </select>
+    <select id="certificateView" parameterType="com.spring.board.vo.CertificateVo" resultMap="certificateVo">
+    	SELECT
+    		CERT_SEQ
+             , SEQ
+             , QUALIFI_NAME
+             , ACQU_DATE
+             , ORGANIZE_NAME   
+		FROM
+			CERTIFICATE
+    	WHERE	SEQ  = #{seq}
+    	ORDER BY CERT_SEQ ASC
+    </select>
+    
+    <!-- 행 추가 및 저장 -->
     <select id="educationSave" parameterType="com.spring.board.vo.EducationVo">
     	INSERT INTO 
     		EDUCATION
@@ -82,15 +172,14 @@
              , SCHOOL_NAME
              , DIVISION
              , START_PERIOD
-             , END_PERIOD
-             , MAJOR
              , END_PERIOD    
              , MAJOR
              , GRADE
              , LOCATION)
 		VALUES
 			(
-			#{eduSeq}
+			(SELECT TO_CHAR(NVL(MAX(EDU_SEQ),0)+1) 
+			  FROM EDUCATION)
 			, #{seq}
 			, #{schoolName}
 			, #{division}
@@ -99,6 +188,80 @@
 			, #{major}
 			, #{grade}
 			, #{location})
+    </select>
+    <select id="careerSave" parameterType="com.spring.board.vo.CareerVo">
+    	INSERT INTO 
+    		CAREER
+    		(CAR_SEQ
+             , SEQ
+             , COMP_NAME
+             , START_PERIOD
+             , END_PERIOD    
+             , TASK
+             , LOCATION)
+		VALUES
+			(
+			(SELECT TO_CHAR(NVL(MAX(CAR_SEQ),0)+1) 
+			  FROM CAREER)
+			, #{seq}
+			, #{compName}
+			, #{startPeriod}
+			, #{endPeriod}
+			, #{task}
+			, #{location})
+    </select>
+    <select id="certificateSave" parameterType="com.spring.board.vo.CertificateVo">
+    	INSERT INTO 
+    		CERTIFICATE
+    		(CERT_SEQ
+             , SEQ
+             , QUALIFI_NAME
+             , ACQU_DATE
+             , ORGANIZE_NAME)
+		VALUES
+			(
+			(SELECT TO_CHAR(NVL(MAX(CERT_SEQ),0)+1) 
+			  FROM CERTIFICATE)
+			, #{seq}
+			, #{qualifiName}
+			, #{acquDate}
+			, #{organizeName})
+    </select>
+    
+    <!-- 행 수정 및 저장 -->
+    <select id="educationUpdate" parameterType="com.spring.board.vo.EducationVo">
+	 	UPDATE 
+	 		EDUCATION
+		SET 
+			START_PERIOD = #{startPeriod}
+			, END_PERIOD = #{endPeriod}
+			, DIVISION = #{division}
+			, SCHOOL_NAME = #{schoolName}
+			, LOCATION = #{location}
+			, MAJOR = #{major}
+			, GRADE = #{grade}
+		WHERE SEQ = #{seq} 
+		AND EDU_SEQ = #{eduSeq}
+    </select>
+    
+    <!-- 행 삭제 -->
+    <select id="educationDelete" parameterType="com.spring.board.vo.EducationVo">
+	 	DELETE FROM 
+	 		EDUCATION
+		WHERE EDU_SEQ = #{eduSeq}
+		AND SEQ = #{seq}
+    </select>
+    <select id="careerDelete" parameterType="com.spring.board.vo.CareerVo">
+    	DELETE FROM 
+	 		CAREER
+		WHERE CAR_SEQ = #{carSeq}
+		AND SEQ = #{seq}
+    </select>
+    <select id="certificateDelete" parameterType="com.spring.board.vo.CertificateVo">
+    	DELETE FROM 
+	 		CERTIFICATE
+		WHERE CERT_SEQ = #{certSeq}
+		AND SEQ = #{seq}
     </select>
   
 </mapper>

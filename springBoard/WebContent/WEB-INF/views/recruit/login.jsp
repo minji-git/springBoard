@@ -9,7 +9,14 @@
 </head>
 <script type="text/javascript">
 
-	$j(document).ready(function(){
+	$j(document).ready(function(event){
+		
+		//main.jsp에서 세션 종료 시, 재로그인
+		var urlParams = new URLSearchParams(window.location.search);
+		var msg = urlParams.get('msg');
+		if(msg) {
+			alert(msg);
+		}
 		
 		//입력 조건 확인
 		//name 한글만 입력

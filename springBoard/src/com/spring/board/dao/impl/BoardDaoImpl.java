@@ -1,5 +1,6 @@
 package com.spring.board.dao.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Repository;
 
 import com.spring.board.dao.BoardDao;
 import com.spring.board.vo.BoardVo;
+import com.spring.board.vo.CareerVo;
+import com.spring.board.vo.CertificateVo;
 import com.spring.board.vo.CodeVo;
 import com.spring.board.vo.EducationVo;
 import com.spring.board.vo.RecruitVo;
@@ -93,17 +96,25 @@ public class BoardDaoImpl implements BoardDao{
 		// TODO Auto-generated method stub
 		return sqlSession.selectOne("user.userSelect", userVo);
 	}
+	
 	//MBTI TEST
 	@Override
 	public List<BoardVo> mbtiList(int pageNo) throws Exception {
 		// TODO Auto-generated method stub
 		return sqlSession.selectList("board.mbtiList", pageNo);
 	}
+	
 	//입사지원 중복확인
 	@Override
 	public RecruitVo loginChk(RecruitVo recruitVo) throws Exception {
 		// TODO Auto-generated method stub
-		return sqlSession.selectOne("recruit.recruitView", recruitVo);
+		return sqlSession.selectOne("recruit.loginChk", recruitVo);
+	}
+	//입사 조회
+	@Override
+	public RecruitVo recruitView(String seq) throws Exception {
+		// TODO Auto-generated method stub
+		return sqlSession.selectOne("recruit.recruitView", seq);
 	}
 	//입사지원 로그인
 	@Override
@@ -111,10 +122,77 @@ public class BoardDaoImpl implements BoardDao{
 		// TODO Auto-generated method stub
 		return sqlSession.insert("recruit.login", recruitVo);
 	}
+	//지원자 정보 수정
+	@Override
+	public int recruitUpdate(RecruitVo recruitVo) throws Exception {
+		// TODO Auto-generated method stub
+		return sqlSession.update("recruit.recruitUpdate", recruitVo);
+	}
+	//학력 조회
+	@Override
+	public ArrayList<EducationVo> educationView(EducationVo educationVo) throws Exception {
+		// TODO Auto-generated method stub
+		List<EducationVo> eduList = sqlSession.selectList("recruit.educationView", educationVo);
+		return (ArrayList<EducationVo>)eduList;
+	}
+	//경력 조회
+	@Override
+	public ArrayList<CareerVo> careerView(CareerVo careerVo) throws Exception {
+		// TODO Auto-generated method stub
+		List<CareerVo> carList = sqlSession.selectList("recruit.careerView", careerVo);
+		return (ArrayList<CareerVo>) carList;
+	}
+	//자격증 조회
+	@Override
+	public ArrayList<CertificateVo> certificateView(CertificateVo certificateVo) throws Exception {
+		// TODO Auto-generated method stub
+		List<CertificateVo> cerList = sqlSession.selectList("recruit.certificateView", certificateVo);
+		return (ArrayList<CertificateVo>) cerList;
+	}
+	//학력 추가
 	@Override
 	public int educationSave(EducationVo educationVo) throws Exception {
 		// TODO Auto-generated method stub
 		return sqlSession.insert("recruit.educationSave", educationVo);
+	}
+	//경력 추가
+	@Override
+	public int careerSave(CareerVo careerVo) throws Exception {
+		// TODO Auto-generated method stub
+		return sqlSession.insert("recruit.careerSave", careerVo);
+	}
+	//자격증 추가
+	@Override
+	public int certificateSave(CertificateVo certificateVo) throws Exception {
+		// TODO Auto-generated method stub
+		return sqlSession.insert("recruit.certificateSave", certificateVo);
+	}	
+	//학력 수정
+	public int educationUpdate(EducationVo educationVo) throws Exception {
+		// TODO Auto-generated method stub
+		return sqlSession.update("recruit.educationUpdate", educationVo);
+	}
+	//경력 수정
+	
+	//자격증 수정
+	
+	//학력 삭제
+	@Override
+	public int educationDelete(EducationVo educationVo) throws Exception {
+		// TODO Auto-generated method stub
+		return sqlSession.delete("recruit.educationDelete", educationVo);
+	}
+	//경력 삭제
+	@Override
+	public int careerDelete(CareerVo careerVo) throws Exception {
+		// TODO Auto-generated method stub
+		return sqlSession.delete("recruit.careerDelete", careerVo);
+	}
+	//자격증 삭제
+	@Override
+	public int certificateDelete(CertificateVo certificateVo) throws Exception {
+		// TODO Auto-generated method stub
+		return sqlSession.delete("recruit.certificateDelete", certificateVo);
 	}
 	
 }
