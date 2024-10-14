@@ -24,16 +24,41 @@
 			let name = $j(this).val().replace(/[^\u3131-\u318E\uac00-\ud7a3]/g, ''); //한글만 표기
 			$j(this).val(name);
 		});
+		
 		//phone 숫자만 입력
 		$j('#phone').on('input', function(){
-			let phone = $j(this).val().replace(/[^0-9]/g, ''); //숫자만 남김
-			$j('#phone').val(phone);
+			let input = $j(this);
+			let phone = input.val();
+			
+			let filterPhone = phone.replace(/[^0-9]/g, ''); //숫자만 남김
+			
+			if(phone !== filterPhone) {
+				input.val(filterPhone);
+			}
 		});
 		
 		//입사지원 클릭
 		$j('#login').on("click", function(event){
 			event.preventDefault();
-			console.log($j('.loginForm :input').serialize());
+			
+			const inputs = $j('.loginForm :input');
+			console.log(inputs);
+			let isValid = true; // 유효성 검사
+			
+			inputs.each(function(){
+				let htmlObj = this;
+				
+				if (!htmlObj.value) {
+	                alert("\"" + htmlObj.title + "\" 입력하세요");
+	                htmlObj.focus();
+	                isValid = false;
+	                
+	                return false;
+				}
+			});
+			if (!isValid) {
+	        	return; // 유효성 검사 실패 시 AJAX 요청 중단
+	        }
 			
 		    // name 바이트 체크
 			let name = $j('#name').val();
@@ -45,14 +70,19 @@
 		        return false;
 		    }
 		    
-		    //phone 형식(01-)
-		    let phone = $j('#phone').val();
-		    let start = phone.slice(0,2);
-		    if(start != "01") {
-		    	$j('#phone').focus();
-		    	alert("입력 형식이 올바르지 않습니다. 다시 입력하세요.");
+		  	//phone 형식(01-)
+		  	let phone = $j('#phone').val();
+		    let start = phone.slice(0,3);
+		    if(start != "010") {
+		    	$j(this).focus();
+		    	alert("번호 형식(010~)이 올바르지 않습니다. 다시 입력하세요.");
 		    	return false;
 		    }
+		    if(phone.length < 11) {
+				alert('번호 11자리를 입력하세요.');
+				$j(this).focuse();
+				return false;
+			}
 		    
 		    //name,phone으로 recruit 중복체크
 		    //중복이면, 일치한 DB 불러와서 저장된 입사지원서로 이동
@@ -92,13 +122,13 @@
 		<tr>
 			<th>이름</th>
 			<td>
-				<input id="name" type="text" name="name">
+				<input id="name" title="이름" type="text" name="name">
 			</td>
 		</tr>
 		<tr>
 			<th>휴대폰번호</th>
 			<td>
-				<input id="phone" type="text"  name="phone" maxlength="11">
+				<input id="phone" title="휴대폰번호" type="text" name="phone" maxlength="11">
 			</td>
 		</tr>
 		<tr>

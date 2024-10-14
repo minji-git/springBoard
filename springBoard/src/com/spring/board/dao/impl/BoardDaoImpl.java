@@ -173,9 +173,15 @@ public class BoardDaoImpl implements BoardDao{
 		return sqlSession.update("recruit.educationUpdate", educationVo);
 	}
 	//경력 수정
-	
+	public int careerUpdate(CareerVo careerVo) throws Exception {
+		// TODO Auto-generated method stub
+		return sqlSession.update("recruit.careerUpdate", careerVo);
+	}
 	//자격증 수정
-	
+	public int certificateUpdate(CertificateVo certificateVo) throws Exception {
+		// TODO Auto-generated method stub
+		return sqlSession.update("recruit.certificateUpdate", certificateVo);
+	}
 	//학력 삭제
 	@Override
 	public int educationDelete(EducationVo educationVo) throws Exception {

@@ -66,9 +66,9 @@ public interface boardService {
 	//학력 수정
 	public int educationUpdate(EducationVo educationVo) throws Exception;
 	//경력 수정
-	
+	public int careerUpdate(CareerVo careerVo) throws Exception;
 	//자격증 수정	
-		
+	public int certificateUpdate(CertificateVo certificateVo) throws Exception;
 	//학력 삭제
 	public int educationDelete(EducationVo educationVo) throws Exception;
 	//경력 삭제

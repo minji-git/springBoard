@@ -243,6 +243,28 @@
 		WHERE SEQ = #{seq} 
 		AND EDU_SEQ = #{eduSeq}
     </select>
+    <select id="careerUpdate" parameterType="com.spring.board.vo.CareerVo">
+	 	UPDATE 
+	 		CAREER
+		SET 
+			START_PERIOD = #{startPeriod}
+			, END_PERIOD = #{endPeriod}
+			, COMP_NAME = #{compName}
+			, TASK = #{task}
+			, LOCATION = #{location}
+		WHERE SEQ = #{seq} 
+		AND CAR_SEQ = #{carSeq}
+    </select>
+    <select id="certificateUpdate" parameterType="com.spring.board.vo.CertificateVo">
+	 	UPDATE 
+	 		CERTIFICATE
+		SET 
+			QUALIFI_NAME = #{qualifiName}
+			, ACQU_DATE = #{acquDate}
+			, ORGANIZE_NAME = #{organizeName}
+		WHERE SEQ = #{seq} 
+		AND CERT_SEQ = #{certSeq}
+    </select>
     
     <!-- 행 삭제 -->
     <select id="educationDelete" parameterType="com.spring.board.vo.EducationVo">

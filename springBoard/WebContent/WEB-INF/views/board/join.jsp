@@ -119,13 +119,6 @@
 					return false;
 				}
 			} 
-// 			else {
-// 				isPw = true;
-// 				$j("#confrimMsg").text('비밀번호 불일치').css('color', '#fba082');
-// 				isPwChk = false;
-// 				$j('#userPwChk').focus();
-// 				return false;
-// 			}
 		});	
 		
 		//id 한글 입력 방지

@@ -112,17 +112,121 @@ public class RecruitController {
 			//seq로 recruitVo 조회& model 저장
 			RecruitVo recruitView = boardService.recruitView(recruitVo.getSeq());
 			
-			//최초 등록 후, 재로그인 시 학력/경력/자격증 리스트
+			// 기본값 설정
+	        if (recruitView.getSubmit() == null) {
+	            recruitView.setSubmit(""); // 기본값 설정
+	        }
+			
+	        //최초 등록 후, 재로그인 시 학력/경력/자격증 리스트
+			//학력 가져오기(최종 학력만 표시?)
 			educationVo.setSeq(recruitView.getSeq());
 			List<EducationVo> educationList = boardService.educationView(educationVo);
+			model.addAttribute("educationList", educationList);
 			
 			//학력 기간 계산
-			
+			int totalYearsElementary = 0;
+	        int totalYearsMiddle = 0;
+	        int totalYearsHigh = 0;
+	        int totalYearsUniversity = 0;
+	        int totalYearsUniversity2 = 0;
+
+			for (EducationVo education : educationList) {
+				// 시작과 종료 기간을 가져옴
+			    String startPeriod = education.getStartPeriod(); // 예: "2023.03"
+			    String endPeriod = education.getEndPeriod(); // 예: "2025.06"
+
+			    try {
+			        // 연도와 월을 분리
+			        String[] startParts = startPeriod.split("\\.");
+			        String[] endParts = endPeriod.split("\\.");
+
+			        int startYear = Integer.parseInt(startParts[0]);
+			        int startMonth = Integer.parseInt(startParts[1]);
+			        int endYear = Integer.parseInt(endParts[0]);
+			        int endMonth = Integer.parseInt(endParts[1]);
+
+			        // 총 년도 계산
+			        int yearDiff = endYear - startYear;
+			        int monthDiff = endMonth - startMonth;
+
+			        // 월 차이가 음수일 경우 년도에서 1을 빼고 12를 더함
+			        if (monthDiff < 0) {
+			            yearDiff--;
+			            monthDiff += 12;
+			        }
+
+			        // 학력별로 총 년도에 추가
+	                if (education.getSchoolName() != null) {
+	                    if (education.getSchoolName().contains("초등학교")) {
+	                        totalYearsElementary += yearDiff;
+	                    } else if (education.getSchoolName().contains("중학교")) {
+	                        totalYearsMiddle += yearDiff;
+	                    } else if (education.getSchoolName().contains("고등학교")) {
+	                        totalYearsHigh += yearDiff;
+	                    } else if (education.getSchoolName().contains("대학교")) {
+	                        totalYearsUniversity += yearDiff;
+	                    } else if (education.getSchoolName().contains("대학원")) {
+	                        totalYearsUniversity2 += yearDiff;
+	                    }
+	                }
+			        
+			    } catch (Exception e) {
+			        System.err.println("잘못된 기간 형식: " + startPeriod + " - " + endPeriod);
+			        // 필요에 따라 예외 처리 로직 추가
+			    }
+			}
+			model.addAttribute("totalYearsElementary", totalYearsElementary);
+	        model.addAttribute("totalYearsMiddle", totalYearsMiddle);
+	        model.addAttribute("totalYearsHigh", totalYearsHigh);
+	        model.addAttribute("totalYearsUniversity", totalYearsUniversity);
+	        model.addAttribute("totalYearsUniversity2", totalYearsUniversity2);
 			
 			if(careerVo != null) {
 				careerVo.setSeq(recruitView.getSeq());
 				List<CareerVo> careerList = boardService.careerView(careerVo);
 				model.addAttribute("careerList", careerList);
+				
+				//경력 총 기간 계산
+				int totalCareerYear = 0;
+				int totalCareerMonth = 0;
+				
+				for(CareerVo career : careerList) {
+					// 시작과 종료 기간을 가져옴
+				    String startPeriod = career.getStartPeriod(); // 예: "2023.03"
+				    String endPeriod = career.getEndPeriod(); // 예: "2025.06"
+				    
+				    try {
+				        // 연도와 월을 분리
+				        String[] startParts = startPeriod.split("\\.");
+				        String[] endParts = endPeriod.split("\\.");
+
+				        int startYear = Integer.parseInt(startParts[0]);
+				        int startMonth = Integer.parseInt(startParts[1]);
+				        int endYear = Integer.parseInt(endParts[0]);
+				        int endMonth = Integer.parseInt(endParts[1]);
+
+				        // 총 년도 계산
+				        int yearDiff = endYear - startYear;
+				        int monthDiff = endMonth - startMonth;
+
+				        // 월 차이가 음수일 경우 년도에서 1을 빼고 12를 더함
+				        if (monthDiff < 0) {
+				            yearDiff--;
+				            monthDiff += 12;
+				        }
+				        totalCareerYear += yearDiff;
+				        totalCareerMonth += monthDiff;
+				    } catch (Exception e) {
+				        System.err.println("잘못된 기간 형식: " + startPeriod + " - " + endPeriod);
+				        // 필요에 따라 예외 처리 로직 추가
+				    }
+				}
+				if(totalCareerMonth >= 12) {
+					totalCareerYear += totalCareerMonth / 12;
+					totalCareerMonth = totalCareerMonth % 12;
+				}
+				model.addAttribute("totalCareerYear", totalCareerYear);
+				model.addAttribute("totalCareerMonth", totalCareerMonth);
 			}
 			
 			if(certificateVo != null) {
@@ -133,12 +237,12 @@ public class RecruitController {
 			
 			//신규 recruit 가입한 경우는 바로 main.jsp
 			mav = new ModelAndView("recruit/main");
+			
 			session.setAttribute("recruit", recruitView);
-			mav.addObject("recruit", recruitView);
-			mav.addObject("educationList", educationList);
+			model.addAttribute("recruit", recruitView);
 			
 		} catch (Exception e) {
-		    e.printStackTrace(); // 예외 메시지 출력
+		    e.printStackTrace();
 		}
 		return mav;
 	}
@@ -146,15 +250,16 @@ public class RecruitController {
 	@RequestMapping(value = "/recruit/recruitSave.do", method = RequestMethod.POST)
 	@ResponseBody
 	public Map<String, Object> recruitSave(Locale locale, RecruitVo recruitVo
+					, EducationVo education
 					, @RequestParam List<String> eduSeq, @RequestParam List<String> startPeriod
 					, @RequestParam List<String> endPeriod, @RequestParam List<String> division
 					, @RequestParam List<String> schoolName, @RequestParam List<String> eduLocation
 					, @RequestParam List<String> major, @RequestParam List<String> grade
-					, @RequestParam List<String> carSeq, @RequestParam List<String> carStartPeriod
-					, @RequestParam List<String> carEndPeriod, @RequestParam List<String> compName
-					, @RequestParam List<String> task, @RequestParam List<String> carLocation
-					, @RequestParam List<String> certSeq, @RequestParam List<String> qualifiName
-					, @RequestParam List<String> acquDate, @RequestParam List<String> organizeName
+					, @RequestParam(required = false)  List<String> carSeq, @RequestParam(required = false)  List<String> carStartPeriod
+					, @RequestParam(required = false)  List<String> carEndPeriod, @RequestParam(required = false)  List<String> compName
+					, @RequestParam(required = false)  List<String> task, @RequestParam(required = false)  List<String> carLocation
+					, @RequestParam(required = false)  List<String> certSeq, @RequestParam(required = false)  List<String> qualifiName
+					, @RequestParam(required = false)  List<String> acquDate, @RequestParam(required = false)  List<String> organizeName
 					) throws Exception {
 		
 System.out.println("> recruitSave 컨트롤러 수행~~");
@@ -174,143 +279,188 @@ System.out.println("> recruitSave 컨트롤러 수행~~");
 		    EducationVo edu = new EducationVo();
 		    edu.setSeq(recruitVo.getSeq());
 	        ArrayList<EducationVo> existingEduList = boardService.educationView(edu);
-System.out.println(">>> 존재하는 eduList 개수: " + existingEduList.size());
 	        
-	        // 새로운 학력 데이터 저장(insert, update)
-	        int insertEdu = 0;
-	        int updateEdu = 0;
-	        for (int i = 0; i < eduSeq.size(); i++) {
-	        	EducationVo newEdu = new EducationVo();
-	        	newEdu.setSeq(recruitVo.getSeq());
-	        	newEdu.setEduSeq(eduSeq.get(i));
-                newEdu.setStartPeriod(startPeriod.get(i));
-                newEdu.setEndPeriod(endPeriod.get(i));
-                newEdu.setDivision(division.get(i));
-                newEdu.setSchoolName(schoolName.get(i));
-                newEdu.setLocation(eduLocation.get(i));
-                newEdu.setMajor(major.get(i));
-                newEdu.setGrade(grade.get(i));
-                
-	            // 기존 데이터와 비교하여 DB UPDATE 또는 INSERT 처리
-	        	boolean exists = false;
-	            for (EducationVo existingEdu : existingEduList) {
-	            	//기존 eduSeq와 새로운 들어온 eduSeq가 일치하면 UPDATE 
-	            	if(existingEdu.getEduSeq() != null 
-	            			&& existingEdu.getEduSeq().equals(eduSeq.get(i))
-	            			&& existingEdu.getSeq().equals(recruitVo.getSeq())) {
-	            		//데이터 비교 후, 업데이트 결정
-	            		if (!existingEdu.getSchoolName().equals(schoolName.get(i)) ||
-            				!existingEdu.getStartPeriod().equals(startPeriod.get(i)) ||
-            				!existingEdu.getEndPeriod().equals(endPeriod.get(i)) ||
-            				!existingEdu.getDivision().equals(division.get(i)) ||
-            				!existingEdu.getLocation().equals(eduLocation.get(i)) ||
-            				!existingEdu.getMajor().equals(major.get(i)) ||
-            				!existingEdu.getGrade().equals(grade.get(i))) {
-	            			
-	            			//데이터 UPDATE 처리
-	            			boardService.educationUpdate(newEdu);
-	            			updateEdu++;
-	            		}
-	            		exists = true;
-	            		break; // 이미 존재하는 데이터인 경우, 학력 업데이트
-	            	}
-	            }
-
-	            // 기존 데이터가 없는 경우, 새로운 데이터 삽입
-	            if (!exists) {
-	                // 학력 데이터 삽입
+	        // 새로운 학력 데이터 저장(insert, update, unchanged)
+	        int insertEduCnt = 0;
+	        int updateEduCnt = 0;
+	        int unchangedEduCnt = 0;
+	        
+			for (int i = 0; i < startPeriod.size(); i++) {
+				EducationVo newEdu = new EducationVo();
+				newEdu.setSeq(recruitVo.getSeq());
+				newEdu.setStartPeriod(startPeriod.get(i));
+				newEdu.setEndPeriod(endPeriod.get(i));
+				newEdu.setDivision(division.get(i));
+				newEdu.setSchoolName(schoolName.get(i));
+				newEdu.setLocation(eduLocation.get(i));
+				newEdu.setMajor(major.get(i));
+				newEdu.setGrade(grade.get(i));
+				
+				//최초 학력 정보 저장
+		        if(existingEduList.isEmpty()) {
+		        	//eduSeq가 null이거나 비어있는 경우: 새로운 데이터 삽입
+		        	System.out.println(":: 기존 학력 데이터 없음, 새로운 데이터 삽입");
 	                boardService.educationSave(newEdu);
-	                insertEdu++;
-	            }
+	                insertEduCnt++;
+		        } else if(i >= eduSeq.size()) {
+		        	//행 추가하여 새로운 데이터 삽입(기존 데이터 + 행 추가 입력)
+		        	System.out.println(":: 기존 학력 데이터 + 새로운 데이터 삽입");
+	                boardService.educationSave(newEdu);
+	                insertEduCnt++;
+		        } else {
+	                // eduSeq가 있는 경우, 기존 데이터와 비교하여 업데이트 또는 변경 없음 처리	
+					for(EducationVo existingEdu : existingEduList) {
+						// eduSeq가 일치하는 eduVo에서
+						if(existingEdu.getEduSeq().equals(eduSeq.get(i))) {
+							//기존 데이터와 비교하여 UPDATE 여부 결정
+							if(!existingEdu.getSchoolName().equals(schoolName.get(i))
+									|| !existingEdu.getStartPeriod().equals(startPeriod.get(i))
+									|| !existingEdu.getEndPeriod().equals(endPeriod.get(i))
+									|| !existingEdu.getDivision().equals(division.get(i))
+									|| !existingEdu.getLocation().equals(eduLocation.get(i))
+									|| !existingEdu.getMajor().equals(major.get(i))
+									|| !existingEdu.getGrade().equals(grade.get(i))) {
+								
+								System.out.println(":: 기존 학력 업데이트: " + existingEdu.getEduSeq());
+	                            newEdu.setEduSeq(existingEdu.getEduSeq());
+	                            boardService.educationUpdate(newEdu); // DB UPDATE 메서드 호출
+	                            updateEduCnt++;
+							//변경되지 않은 데이터
+							} else {
+								System.out.println(":: 변경 없음, 기존 학력 저장: " + existingEdu.getEduSeq());
+	                            unchangedEduCnt++;
+							}
+							break;
+						}
+					}
+		        }
 	        }
-	        if(insertEdu > 0) {
-	        	map.put("eduInsert", insertEdu); // 학력 정보 insert 성공
-	        }
-	        if(updateEdu > 0) {
-	        	map.put("eduUpdate", updateEdu); // 학력 정보 update 성공
-	        }
-	        
-	        // 기존 경력 데이터 가져오기
+			
+			// 기존 경력 데이터 가져오기
 		    CareerVo car = new CareerVo();
 		    car.setSeq(recruitVo.getSeq());
 	        ArrayList<CareerVo> existingCarList = boardService.careerView(car);
 	        
-	        // 새로운 경력 데이터 저장
-	        int insertCar = 0;
-	        for (int i = 0; i < carStartPeriod.size(); i++) {
-	            boolean exists = false;
-	            
-	            // 기존 데이터와 비교
-	            for (CareerVo existingCar : existingCarList) {
-	                if (existingCar.getStartPeriod().equals(carStartPeriod.get(i)) &&
-                		existingCar.getEndPeriod().equals(carEndPeriod.get(i)) &&
-                		existingCar.getCompName().equals(compName.get(i)) &&
-                		existingCar.getTask().equals(task.get(i)) &&
-                		existingCar.getLocation().equals(carLocation.get(i))) {
-	                    exists = true;
-	                    break; // 이미 존재하는 데이터인 경우
-	                }
-	            }
-
-	            // 새로운 데이터인 경우에만 삽입
-	            if (!exists) {
-	                CareerVo newCar = new CareerVo();
-	                newCar.setSeq(recruitVo.getSeq());
-	                newCar.setStartPeriod(carStartPeriod.get(i));
-	                newCar.setEndPeriod(carEndPeriod.get(i));
-	                newCar.setCompName(compName.get(i));
-	                newCar.setTask(task.get(i));
-	                newCar.setLocation(carLocation.get(i));
-
-	                // 경력 데이터 삽입
-	                boardService.careerSave(newCar);
-	                insertCar++;
-	            }
-	        }
-	        if(insertCar > 0) {
-	        	map.put("career", "Y"); // 학력 정보 저장 성공
-	        } else {
-	        	map.put("career", "0"); // 학력 정보 저장 성공
-	        }
+	        // 새로운 학력 데이터 저장(insert, update, unchanged)
+	        int insertCarCnt = 0;
+	        int updateCarCnt = 0;
+	        int unchangedCarCnt = 0;
 	        
-	        // 기존 자격증 데이터 가져오기
+	        if(carStartPeriod != null) {
+	        	for (int i = 0; i < carStartPeriod.size(); i++) {
+	        		CareerVo newCar = new CareerVo();
+	        		newCar.setSeq(recruitVo.getSeq());
+	        		newCar.setStartPeriod(carStartPeriod.get(i));
+	        		newCar.setEndPeriod(carEndPeriod.get(i));
+	        		newCar.setCompName(compName.get(i));
+	        		newCar.setTask(task.get(i));
+	        		newCar.setLocation(carLocation.get(i));
+	        		
+	        		//최초 경력 정보 저장
+	        		if(existingCarList.isEmpty()) {
+	        			//carSeq가 null이거나 비어있는 경우: 새로운 데이터 삽입
+	        			System.out.println(":: 기존 경력 데이터 없음, 새로운 데이터 삽입");
+	        			boardService.careerSave(newCar);
+	        			insertCarCnt++;
+	        		} else if(i >= carSeq.size()) {
+	        			//행 추가하여 새로운 데이터 삽입(기존 데이터 + 행 추가 입력)
+	        			System.out.println(":: 기존 경력 데이터 + 새로운 데이터 삽입");
+	        			boardService.careerSave(newCar);
+	        			insertCarCnt++;
+	        		} else {
+	        			// carSeq가 있는 경우, 기존 데이터와 비교하여 업데이트 또는 변경 없음 처리	
+	        			for(CareerVo existingCar : existingCarList) {
+	        				// carSeq가 일치하는 carVo에서
+	        				if(existingCar.getCarSeq().equals(carSeq.get(i))) {
+	        					//기존 데이터와 비교하여 UPDATE 여부 결정
+	        					if(!existingCar.getStartPeriod().equals(carStartPeriod.get(i))
+	        							|| !existingCar.getEndPeriod().equals(carEndPeriod.get(i))
+	        							|| !existingCar.getCompName().equals(compName.get(i))
+	        							|| !existingCar.getTask().equals(task.get(i))
+	        							|| !existingCar.getLocation().equals(carLocation.get(i))) {
+	        						
+	        						System.out.println(":: 기존 경력 업데이트: " + existingCar.getCarSeq());
+	        						newCar.setCarSeq(existingCar.getCarSeq());
+	        						boardService.careerUpdate(newCar); // DB UPDATE 메서드 호출
+	        						updateCarCnt++;
+	        						//변경되지 않은 데이터
+	        					} else {
+	        						System.out.println(":: 변경 없음, 기존 경력 저장: " + existingCar.getCarSeq());
+	        						unchangedCarCnt++;
+	        					}
+	        					break;
+	        				}
+	        			}
+	        		}
+	        	}
+	        }
+			
+			// 기존 자격증 데이터 가져오기
 		    CertificateVo cert = new CertificateVo();
 		    cert.setSeq(recruitVo.getSeq());
 	        ArrayList<CertificateVo> existingCertList = boardService.certificateView(cert);
 	        
-	        // 새로운 자격증 데이터 저장
-	        int insertCert = 0;
-	        for (int i = 0; i < qualifiName.size(); i++) {
-	            boolean exists = false;
-	            
-	            // 기존 데이터와 비교
-	            for (CertificateVo existingCert : existingCertList) {
-	                if (existingCert.getQualifiName().equals(qualifiName.get(i)) &&
-                		existingCert.getAcquDate().equals(acquDate.get(i)) &&
-                		existingCert.getOrganizeName().equals(organizeName.get(i))) {
-	                    exists = true;
-	                    break; // 이미 존재하는 데이터인 경우
-	                }
-	            }
-
-	            // 새로운 데이터인 경우에만 삽입
-	            if (!exists) {
-	                CertificateVo newCert = new CertificateVo();
-	                newCert.setSeq(recruitVo.getSeq());
-	                newCert.setQualifiName(qualifiName.get(i));
-	                newCert.setAcquDate(acquDate.get(i));
-	                newCert.setOrganizeName(organizeName.get(i));
-
-	                // 자격증 데이터 삽입
-	                boardService.certificateSave(newCert);
-	                insertCert++;
-	            }
+	        // 새로운 자격증 데이터 저장(insert, update, unchanged)
+	        int insertCertCnt = 0;
+	        int updateCertCnt = 0;
+	        int unchangedCertCnt = 0;
+	        
+	        if(qualifiName != null) {
+	        	for (int i = 0; i < qualifiName.size(); i++) {
+	        		CertificateVo newCert = new CertificateVo();
+	        		newCert.setSeq(recruitVo.getSeq());
+	        		newCert.setQualifiName(qualifiName.get(i));
+	        		newCert.setAcquDate(acquDate.get(i));
+	        		newCert.setOrganizeName(organizeName.get(i));
+	        		
+	        		//최초 자격증 정보 저장
+	        		if(existingCertList.isEmpty()) {
+	        			//certSeq가 null이거나 비어있는 경우: 새로운 데이터 삽입
+	        			System.out.println(":: 기존 자격증 데이터 없음, 새로운 데이터 삽입");
+	        			boardService.certificateSave(newCert);
+	        			insertCertCnt++;
+	        		} else if(i >= certSeq.size()) {
+	        			//행 추가하여 새로운 데이터 삽입(기존 데이터 + 행 추가 입력)
+	        			System.out.println(":: 기존 자격증 데이터 + 새로운 데이터 삽입");
+	        			boardService.certificateSave(newCert);
+	        			insertCertCnt++;
+	        		} else {
+	        			// certSeq가 있는 경우, 기존 데이터와 비교하여 업데이트 또는 변경 없음 처리	
+	        			for(CertificateVo existingCert : existingCertList) {
+	        				// certSeq가 일치하는 certVo에서
+	        				if(existingCert.getCertSeq().equals(certSeq.get(i))) {
+	        					//기존 데이터와 비교하여 UPDATE 여부 결정
+	        					if(!existingCert.getQualifiName().equals(qualifiName.get(i))
+	        							|| !existingCert.getAcquDate().equals(acquDate.get(i))
+	        							|| !existingCert.getOrganizeName().equals(organizeName.get(i))) {
+	        						
+	        						System.out.println(":: 기존 자격증 업데이트: " + existingCert.getCertSeq());
+	        						newCert.setCertSeq(existingCert.getCertSeq());
+	        						boardService.certificateUpdate(newCert); // DB UPDATE 메서드 호출
+	        						updateCertCnt++;
+	        						//변경되지 않은 데이터
+	        					} else {
+	        						System.out.println(":: 변경 없음, 기존 자격증 저장: " + existingCert.getCertSeq());
+	        						unchangedCertCnt++;
+	        					}
+	        					break;
+	        				}
+	        			}
+	        		}
+	        	}
 	        }
-	        if(insertCert > 0) {
-	        	map.put("certificate", "Y"); // 자격증 정보 저장 성공
-	        } else {
-	        	map.put("certificate", 0);
-	        }
+	        // 결과 기록
+	        map.put("insertEduCnt", insertEduCnt);
+	        map.put("updateEduCnt", updateEduCnt);
+	        map.put("unchangedEduCnt", unchangedEduCnt);
+	        
+	        map.put("insertCarCnt", insertCarCnt);
+	        map.put("updateCarCnt", updateCarCnt);
+	        map.put("unchangedCarCnt", unchangedCarCnt);
+	        
+	        map.put("insertCertCnt", insertCertCnt);
+	        map.put("updateCertCnt", updateCertCnt);
+	        map.put("unchangedCertCnt", unchangedCertCnt);
 	        
 	        // 저장 성공 시, 리다이렉트할 URL 추가
 	        map.put("redirectUrl", "/recruit/main.do?seq=" + recruitVo.getSeq());
@@ -341,6 +491,7 @@ System.out.println(">>> 존재하는 eduList 개수: " + existingEduList.size())
 		List<String> eduSeqs = respData.get("eduSeqs");
 		List<String> carSeqs = respData.get("carSeqs");
 		List<String> certSeqs = respData.get("certSeqs");
+		
 		
 		try {
 			HttpSession session = request.getSession();
@@ -409,6 +560,8 @@ System.out.println(">>> 존재하는 eduList 개수: " + existingEduList.size())
 					}
 				}
 			}
+			// 저장 성공 시, 리다이렉트할 URL 추가
+			result.put("redirectUrl", "/recruit/main.do?seq=" + recruit.getSeq());
 			
 		} catch (Exception e) {
 			e.printStackTrace(); // 예외 메시지 출력
@@ -416,5 +569,28 @@ System.out.println(">>> 존재하는 eduList 개수: " + existingEduList.size())
 		}
 		return result;
 	}
-
+	
+	@RequestMapping(value = "/recruit/recruitSubmit.do", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, String> recruitSubmit(Locale locale
+											, RecruitVo recruitVo) throws Exception {
+		
+		Map<String, String> result = new HashMap<String, String>();
+		
+		//저장된 recruit,education 정보가 있는지 확인 후, 제출 처리
+		EducationVo edu = new EducationVo();
+		edu.setSeq(recruitVo.getSeq());
+		ArrayList<EducationVo> eduList = boardService.educationView(edu);
+		int eduCnt = eduList.size();
+		if (eduCnt == 0) {
+	        result.put("hold", "저장하고 제출해주세요.");
+	    } else {
+	        // 제출 처리
+	        recruitVo.setSubmit("yes");
+	        int recruitSubmit = boardService.recruitUpdate(recruitVo);
+	        result.put("success", (recruitSubmit > 0 ? "입사 지원서를 제출하였습니다." : null));
+	    }
+		
+		return result;
+	}
 }
