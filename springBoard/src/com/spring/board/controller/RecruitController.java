@@ -271,6 +271,7 @@ System.out.println("> recruitSave 컨트롤러 수행~~");
 		Map<String, Object> map = new HashMap<String, Object>();
 		
 		try {
+			// RecruitVO 내용이 update 하지 않을 경우, 매퍼 update X
 			// RecruitVo 저장
 		    int recruitUpdate = boardService.recruitUpdate(recruitVo);
 		    map.put("recruit", (recruitUpdate > 0) ? "Y" : "N");
@@ -346,10 +347,20 @@ System.out.println("> recruitSave 컨트롤러 수행~~");
 	        int updateCarCnt = 0;
 	        int unchangedCarCnt = 0;
 	        
-	        if(carStartPeriod != null) {
+	        if(carStartPeriod != null || carEndPeriod != null || compName != null
+					|| task != null || carLocation != null) {
 	        	for (int i = 0; i < carStartPeriod.size(); i++) {
 	        		CareerVo newCar = new CareerVo();
 	        		newCar.setSeq(recruitVo.getSeq());
+	        		
+	        		//input 입력값이 1개라도 없을 경우, 저장X
+	        		// 5개 input 모두 null인 경우
+	                if (carStartPeriod.get(i) == "" && carEndPeriod.get(i) == "" 
+	                        && compName.get(i) == "" && task.get(i) == "" && carLocation.get(i) == "") {
+	                    System.out.println("5개 input 모두 \"\"로 저장X");
+	                    continue; // 다음 반복으로 넘어감
+	                }
+	        		//모든 input 값이 존재할 경우,
 	        		newCar.setStartPeriod(carStartPeriod.get(i));
 	        		newCar.setEndPeriod(carEndPeriod.get(i));
 	        		newCar.setCompName(compName.get(i));
@@ -364,7 +375,7 @@ System.out.println("> recruitSave 컨트롤러 수행~~");
 	        			insertCarCnt++;
 	        		} else if(i >= carSeq.size()) {
 	        			//행 추가하여 새로운 데이터 삽입(기존 데이터 + 행 추가 입력)
-	        			System.out.println(":: 기존 경력 데이터 + 새로운 데이터 삽입");
+	        			System.out.println(":: 기존 경력 데이터 있음 + 새로운 데이터 삽입");
 	        			boardService.careerSave(newCar);
 	        			insertCarCnt++;
 	        		} else {
@@ -405,10 +416,19 @@ System.out.println("> recruitSave 컨트롤러 수행~~");
 	        int updateCertCnt = 0;
 	        int unchangedCertCnt = 0;
 	        
-	        if(qualifiName != null) {
+	        if(qualifiName != null || acquDate != null || organizeName != null) {
 	        	for (int i = 0; i < qualifiName.size(); i++) {
 	        		CertificateVo newCert = new CertificateVo();
 	        		newCert.setSeq(recruitVo.getSeq());
+	        		
+	        		//input 입력값이 1개라도 없을 경우, 저장X
+	        		// 3개 input 모두 null인 경우
+	                if (qualifiName.get(i) == "" && acquDate.get(i) == "" && organizeName.get(i) == "") {
+	                    System.out.println("3개 input 모두 \"\"로 저장X");
+	                    continue; // 다음 반복으로 넘어감
+	                }
+	        		
+	        		//모든 input 값이 존재할 경우,
 	        		newCert.setQualifiName(qualifiName.get(i));
 	        		newCert.setAcquDate(acquDate.get(i));
 	        		newCert.setOrganizeName(organizeName.get(i));

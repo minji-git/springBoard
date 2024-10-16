@@ -10,9 +10,7 @@
 <link rel="stylesheet" href="/css/resumeStyle.css"></link>
 </head>
 <script type="text/javascript">
-	
 	$j(document).ready(function(){
-		
 		// recruitVo.submit 값이 'yes'인 경우 모든 input 요소를 readonly로 설정
 		var submitStatus = "${recruit.submit}";
 		console.log("Submit status: " + submitStatus);
@@ -23,33 +21,63 @@
         }
         
         //입력 조건 검증
-		//생년월일 숫자만
-		$j('#birth').on('input', function(){
+		// 1)생년월일 숫자만 입력
+		$j('#birth').on('keyup', function(){
 			let birth = $j(this).val().replace(/[^0-9]/g, '');
 			$j(this).val(birth);
 		});
         
-        // 전화번호 포맷팅
+        // 2)전화번호 포맷팅
         let phone = $j('input[name="phone"]').val().trim();
         if (phone.length === 11) {
             const formattedPhone = phone.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
             $j('#formatPhone').text(formattedPhone);
         }
         
-        //이메일 입력 필드에서 한글 입력 방지
-	    $j('input[name="email"]').on('input', function() {
-	    	let input = $j(this);
-	        let email = input.val();
-	        
-	        // 한글을 포함한 문자열을 제거
-	        let filteredEmail = email.replace(/^[^a-zA-Z0-9.@]/g, '');
-	        
-	        // 필터링된 값이 원래 값과 다를 경우에만 수정
-	        if (email !== filteredEmail) {
-	        	input.val(filteredEmail);
-	        }
+        // 3)이메일 한글 입력 방지
+	    $j('input[name="email"]').on('keyup', function() {
+	        let email = $j(this).val();
+	        email = email.replace(/[^a-zA-Z0-9\.\@]/g, '');
+	        $j(this).val(email);
 	    });
-		
+        
+        // 4)재학기간(start,end) 숫자만 입력
+        $j('input[name="startPeriod"]').on('keyup', function(){
+        	let startPeriod = $j(this).val().replace(/[^\.0-9]/g, '');
+        	$j(this).val(startPeriod);
+        });
+        $j('input[name="endPeriod"]').on('keyup', function(){
+        	let endPeriod = $j(this).val().replace(/[^\.0-9]/g, '');
+        	$j(this).val(endPeriod);
+        });
+        
+        // 5)학점 숫자만 입력
+        $j('input[name="grade"]').on('keyup', function(){
+        	let grade = $j(this).val().replace(/[^\.0-9]/g, '');
+        	$j(this).val(grade);
+        });
+        
+        // 6)근무기간(start,end) 숫자만 입력
+        $j('input[name="carStartPeriod"], input[name="carEndPeriod"]').on('keyup', function(){
+        	let input = $j(this);
+        	if(input.is('[name="carStartPeriod"]')) {
+	        	let carStartPeriod = input.val().replace(/[^\.0-9]/g, '');
+	        	input.val(carStartPeriod);
+        	}
+        	if(input.is('[name="carEndPeriod"]')) {
+	        	let carEndPeriod = input.val().replace(/[^\.0-9]/g, '');
+	        	input.val(carEndPeriod);
+        	}
+        });
+        
+        // 7)취득일 숫자만 입력
+        $j('input[name="acquDate"]').on('keyup', function(){
+        	let acquDate = $j(this).val().replace(/[^\.0-9]/g, '');
+        	$j(this).val(acquDate);
+        });
+        
+        
+		// 제출 로직
 		$j('#submit').on('click', function(event){
 			event.preventDefault();
 			
@@ -60,7 +88,6 @@
 			
 			// 전체 폼 데이터를 직렬화
 		    const param = $j('#recruit :input, #recruit select').serialize();
-		    console.log("Recruit param : " + param);
 		    
 		    // AJAX 요청
 		    $j.ajax({
@@ -84,6 +111,7 @@
 		    });
 		});
 		
+		// 저장 로직
 		$j('#save').on('click', function(event){
 			event.preventDefault();
 			
@@ -92,95 +120,600 @@
 				return false;
 			}
 			
-			//생년월일 형식 검증
-			let birth = $j('#birth').val().trim();
-			if(!/^\d{6}$/.test(birth)) {
-				alert('생년월일은 YYMMDD 형식으로 입력하세요.');
-				$j('#birth').focus();
-				return false;
-			}
-			let yy = parseInt(birth.substring(0,2));
-			let mm = parseInt(birth.substring(2, 4));
-            let dd = parseInt(birth.substring(4, 6));
-            
-            //월별 일수 체크
-            let isValidDate = true;
-            switch(mm) {
-	            case 1: case 3: case 5: case 7: case 8: case 10: case 12:
-	            	if(dd < 1 || dd > 31) {
-	            		isValidDate = false;
-	            	}
-	            	break;
-	            case 4: case 6: case 9: case 11:
-	            	if(dd < 1 || dd > 30) {
-	            		isValidDate = false;
-	            	}
-	            	break;
-	            //윤년 체크
-	            case 2:
-	            	//29일
-	            	if((yy % 4 === 0 && yy % 100 !== 0) || (yy % 400 === 0)) {
-	            		if(dd < 1 || dd > 29) {
-	            			isValidDate = false;
-	            		}
-	            	} else {
-	            		if(dd < 1 || dd > 28) {
-	            			isValidDate = false;
-	            		}
-	            	}
-	            	break;
-            	default: isValidDate = false;
-            }
-            if(!isValidDate) {
-            	alert('잘못된 날짜입니다. 월(01~12)과 일(01~31)에 해당한 값을 입력해주세요.');
-            	$j('#birth').focus();
-                return false;
-            }
-            
-            //이메일 형식 검증
-            let email = $j('input[name="email"]').val().trim();
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                alert("유효한 이메일 형식(xxx@x.x)로 입력하세요.");
-                $j('input[name="email"]').focus();
-                return false;
-            }
+			// 필수 입력 체크 (recruit와 education)
+		    const requiredInputs = $j('#recruit :input, #education :input');
+		    let isValidRequired = true;
 
-			const input = $j('#recruit :input, #education :input, #career :input, #certificate :input');
-			console.log(input);
-			let isValid = true; // 유효성 검사
-			
-			input.each(function(){
-				let htmlObj = this;
-				
-				if (!htmlObj.value 
-						&& htmlObj.name !== 'eduChk' 
-						&& htmlObj.name !== 'carChk' 
-						&& htmlObj.name !== 'certChk'
-						&& htmlObj.name !== 'eduSeq'
-						&& htmlObj.name !== 'carSeq'
-						&& htmlObj.name !== 'certSeq') {
-					//career 중 1개라도 입력되었다면?
-					if(htmlObj.name == 'carStartPeriod' || htmlObj.name == 'carEndPeriod'
-							|| htmlObj.name == 'compName' || htmlObj.name == 'task'
-							|| htmlObj.name == 'carLocation') {
-						
-					//certificate 중 1개라도 입력되었다면?
-					} else if(htmlObj.name == 'qualifiName' || htmlObj.name == 'acquDate'
-							|| htmlObj.name == 'organizeName') {
-						
+		    requiredInputs.each(function() {
+		        if (!this.value 
+		        		&& this.name !== 'eduChk'
+		        		&& this.name !== 'eduSeq') {
+		            alert("\"" + this.name + this.title + "\"을(를) 입력하세요.");
+		            this.focus();
+		            isValidRequired = false;
+		            return false; // each()를 중단
+//		            
+					//생년월일 형식 검증
+					let birth = $j('#birth').val().trim();
+					if(birth != null || birth != "") {
+						if(!/^\d{6}$/.test(birth)) {
+							alert('생년월일은 YYMMDD 형식으로 입력하세요.');
+							$j('#birth').focus();
+							return false;
+						}
+						let yy = parseInt(birth.substring(0,2));
+						let mm = parseInt(birth.substring(2, 4));
+			            let dd = parseInt(birth.substring(4, 6));
+			            
+			            //월별 일수 체크
+			            let isValidDate = true;
+			            switch(mm) {
+				            case 1: case 3: case 5: case 7: case 8: case 10: case 12:
+				            	if(dd < 1 || dd > 31) {
+				            		isValidDate = false;
+				            	}
+				            	break;
+				            case 4: case 6: case 9: case 11:
+				            	if(dd < 1 || dd > 30) {
+				            		isValidDate = false;
+				            	}
+				            	break;
+				            //윤년 체크
+				            case 2:
+				            	//29일
+				            	if((yy % 4 === 0 && yy % 100 !== 0) || (yy % 400 === 0)) {
+				            		if(dd < 1 || dd > 29) {
+				            			isValidDate = false;
+				            		}
+				            	} else {
+				            		if(dd < 1 || dd > 28) {
+				            			isValidDate = false;
+				            		}
+				            	}
+				            	break;
+			            	default: isValidDate = false;
+			            }
+			            if(!isValidDate) {
+			            	alert('잘못된 날짜입니다. 월(01~12)과 일(01~31)에 해당한 값을 입력해주세요.');
+			            	$j('#birth').focus();
+			                return false;
+			            }
 					}
-	                alert("\"" + htmlObj.name + htmlObj.title + "\" 입력하세요");
-	                htmlObj.focus();
-	                isValid = false;
-	                
-	                return false;
-				}
-			});
-			
-		    if (!isValid) {
-	        	return; // 유효성 검사 실패 시 AJAX 요청 중단
+		            
+		            //이메일 형식 검증
+		            let email = $j('input[name="email"]').val().trim();
+		            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+		                alert("유효한 이메일 형식(xxx@naver.com)에 맞게 입력하세요.");
+		                $j('input[name="email"]').focus();
+		                return false;
+		            }
+		            
+//		            
+		        }
+		    });
+		    
+		    if (!isValidRequired) {
+		        return; // 필수 입력 검사 실패 시 AJAX 요청 중단
+		    }
+		    
+// 		  	//생년월일 형식 검증
+// 			let birth = $j('#birth').val().trim();
+// 			if(!/^\d{6}$/.test(birth)) {
+// 				alert('생년월일은 YYMMDD 형식으로 입력하세요.');
+// 				$j('#birth').focus();
+// 				return false;
+// 			}
+// 			let yy = parseInt(birth.substring(0,2));
+// 			let mm = parseInt(birth.substring(2, 4));
+//             let dd = parseInt(birth.substring(4, 6));
+            
+//             //월별 일수 체크
+//             let isValidDate = true;
+//             switch(mm) {
+// 	            case 1: case 3: case 5: case 7: case 8: case 10: case 12:
+// 	            	if(dd < 1 || dd > 31) {
+// 	            		isValidDate = false;
+// 	            	}
+// 	            	break;
+// 	            case 4: case 6: case 9: case 11:
+// 	            	if(dd < 1 || dd > 30) {
+// 	            		isValidDate = false;
+// 	            	}
+// 	            	break;
+// 	            //윤년 체크
+// 	            case 2:
+// 	            	//29일
+// 	            	if((yy % 4 === 0 && yy % 100 !== 0) || (yy % 400 === 0)) {
+// 	            		if(dd < 1 || dd > 29) {
+// 	            			isValidDate = false;
+// 	            		}
+// 	            	} else {
+// 	            		if(dd < 1 || dd > 28) {
+// 	            			isValidDate = false;
+// 	            		}
+// 	            	}
+// 	            	break;
+//             	default: isValidDate = false;
+//             }
+//             if(!isValidDate) {
+//             	alert('잘못된 날짜입니다. 월(01~12)과 일(01~31)에 해당한 값을 입력해주세요.');
+//             	$j('#birth').focus();
+//                 return false;
+//             }
+            
+//             //이메일 형식 검증
+//             let email = $j('input[name="email"]').val().trim();
+//             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+//                 alert("유효한 이메일 형식(xxx@naver.com)에 맞게 입력하세요.");
+//                 $j('input[name="email"]').focus();
+//                 return false;
+//             }
+		    
+            // educationList를 반복하면서 입력값 검증
+		    let eduValid = true; // 유효성 검사 플래그
+	        let eduRows = $j('#education'); // 모든 education 행 선택
+	
+	        eduRows.each(function() {
+	            let row = $j(this); // 현재 행
+	            
+ 				let startPeriod = $j(this).find('input[name="startPeriod"]').val();
+	            let endPeriod = $j(this).find('input[name="endPeriod"]').val();
+	            let grade = $j(this).find('input[name="grade"]').val();
+	            startPeriod = (startPeriod ? startPeriod.trim() : '');
+	            endPeriod = (endPeriod ? endPeriod.trim() : '');
+	            grade = (grade ? grade.trim() : '');
+            	
+	            if(startPeriod != '' && endPeriod != '' && grade != '') {
+		            // 재학기간(년도 및 월) 조건 확인
+		            let startYear = parseInt(startPeriod.substring(0, 4));
+		            let startMonth = parseInt(startPeriod.substring(5, 7));
+		            let endYear = parseInt(endPeriod.substring(0, 4));
+		            let endMonth = parseInt(endPeriod.substring(5, 7));
+		            
+		            if(!/^\d{4}\.\d{2}$/.test(startPeriod)) {
+		            	alert('시작 기간은 YYYY.MM 형식으로 입력하세요.');
+		            	$j(this).find('input[name="startPeriod"]').focus();
+		            	eduValid = false;
+						return false;
+		            } else {
+			            if(startYear < 1900 || startYear > 2030 || startMonth < 1 || startMonth > 12) {
+			            	alert('시작 기간의 년도(1900~2030)와 월(01~12) 범위에 해당한 값을 입력해주세요.');
+			            	$j(this).find('input[name="startPeriod"]').focus();
+			            	eduValid = false;
+			            	return false;
+			            } 
+			            
+			            if(!/^\d{4}\.\d{2}$/.test(endPeriod)) {
+   			            	alert('종료 기간은 YYYY.MM 형식으로 입력하세요.');
+   			            	$j(this).find('input[name="endPeriod"]').focus();
+   			            	eduValid = false;
+   							return false;
+   			            } else {
+   			            	if(endYear < 1900 || endYear > 2030 || endMonth < 1 || endMonth > 12) {
+   				            	alert('종료 기간의 년도(1900~2030)와 월(01~12) 범위에 해당한 값을 입력해주세요.');
+   				            	$j(this).find('input[name="endPeriod"]').focus();
+   				            	eduValid = false;
+   				            	return false;
+   				            }
+   			            }
+		            }
+
+		         	// 학점 조건
+				    // 소수점 형식 검증
+				    if (!/^\d+\.\d+$/.test(grade)) {
+				        alert('학점은 소수점 1자리(1.0~4.5)까지 입력하시오.');
+				        $j(this).find('input[name="grade"]').focus();
+				        eduValid = false;
+				        return false;
+				    }
+				
+				    // 학점 범위 검증
+				    grade = parseFloat(grade); // 문자열을 숫자로 변환
+				    if (grade < 1.0 || grade > 4.5) {
+				        alert('학점(1.0~4.5) 범위 내로 입력하시오.');
+				        $j(this).find('input[name="grade"]').focus();
+				        eduValid = false;
+				        return false;
+				    }
+	            }
+	        });
+	     	
+	        // 실제 데이터 n번째 행의 유효성 검증(실제 행이 2개 이상일 때)
+	     	let eduRowCount = $j('#education tr').length - 1;
+// 	     	console.log("education tr의 개수 : " + eduRowCount);
+	        
+	     	if (eduRowCount >= 2) {
+	            let nthRow = $j('#education tr').eq(eduRowCount); // n번째 행 (0-indexed)
+	            let nthStartPeriod = nthRow.find('input[name="startPeriod"]').val();
+	            let nthEndPeriod = nthRow.find('input[name="endPeriod"]').val();
+	            let nthGrade = nthRow.find('input[name="grade"]').val();
+	         	
+	            // null 체크 후 trim()
+	            nthStartPeriod = (nthStartPeriod ? nthStartPeriod.trim() : '');
+	            nthEndPeriod = (nthEndPeriod ? nthEndPeriod.trim() : '');
+	            nthGrade = (nthGrade ? nthGrade.trim() : '');
+	            
+	            // n번째 행의 입력값 검증
+	            if(nthStartPeriod == '' && nthEndPeriod == '' && nthGrade == '') {
+	            	// 아래 입력값 조건 처리
+	            } else if (nthStartPeriod == '' || nthEndPeriod == '' || nthGrade == '') {
+	                alert(eduRowCount + '번째 학력의 입력값을 모두 작성해야 합니다.');
+	                eduValid = false;
+	                return;
+	            }
+	            
+	            // 모든 필드가 입력된 경우, 입력 조건 검증
+	            if(nthStartPeriod != '' && nthEndPeriod != '' && nthGrade != '') {
+		            // 재학기간(년도 및 월) 조건 확인
+		            let startYear = parseInt(nthStartPeriod.substring(0, 4));
+		            let startMonth = parseInt(nthStartPeriod.substring(5, 7));
+		            let endYear = parseInt(nthEndPeriod.substring(0, 4));
+		            let endMonth = parseInt(nthEndPeriod.substring(5, 7));
+		            
+		            if(!/^\d{4}\.\d{2}$/.test(nthStartPeriod)) {
+		            	alert('시작 기간은 YYYY.MM 형식으로 입력하세요.');
+		            	nthRow.find('input[name="startPeriod"]').focus();
+		            	eduValid = false;
+						return false;
+		            } else if (/^\d{4}\.\d{2}$/.test(nthStartPeriod)){
+			            if(startYear < 1900 || startYear > 2030 || startMonth < 1 || startMonth > 12) {
+			            	alert('시작 기간의 년도(1900~2030)와 월(01~12) 범위에 해당한 값을 입력해주세요.');
+			            	nthRow.find('input[name="startPeriod"]').focus();
+			            	eduValid = false;
+			            	return false;
+			            } 
+			            
+			            if(!/^\d{4}\.\d{2}$/.test(nthEndPeriod)) {
+   			            	alert('종료 기간은 YYYY.MM 형식으로 입력하세요.');
+   			            	nthRow.find('input[name="endPeriod"]').focus();
+   			            	eduValid = false;
+   							return false;
+   			            } else {
+   			            	if(endYear < 1900 || endYear > 2030 || endMonth < 1 || endMonth > 12) {
+   				            	alert('종료 기간의 년도(1900~2030)와 월(01~12) 범위에 해당한 값을 입력해주세요.');
+   				            	nthRow.find('input[name="endPeriod"]').focus();
+   				            	eduValid = false;
+   				            	return false;
+   				            }
+   			            }
+		            }
+
+		         	// 학점 소수점 형식 검증
+				    if (!/^\d+\.\d+$/.test(nthGrade)) {
+				        alert('학점은 소수점 1자리(1.0~4.5)까지 입력하시오.');
+				        nthRow.find('input[name="grade"]').focus();
+				        eduValid = false;
+				        return false;
+				    }
+				
+				    // 학점 범위 검증
+				    grade = parseFloat(nthGrade); // 문자열을 숫자로 변환
+				    if (grade < 1.0 || grade > 4.5) {
+				        alert('학점(1.0~4.5) 범위 내로 입력하시오.');
+				        nthRow.find('input[name="grade"]').focus();
+				        eduValid = false;
+				        return false;
+				    }
+	            }
 	        }
-			
+	        
+	        if (!eduValid) {
+	            return; // 재학 기간, 학점 검증 실패 시 AJAX 요청 중단
+	        }
+
+		    // careerList를 반복하면서 입력값 검증
+		    let careerValid = true; // 유효성 검사 플래그
+	        let careerRows = $j('#career'); // 모든 career 행 선택
+	
+	        careerRows.each(function() {
+	            let row = $j(this); // 현재 행
+// 				console.log(row.prop('outerHTML'));
+	            
+	            let startPeriod = row.find('input[name="carStartPeriod"]').val().trim();
+	            let endPeriod = row.find('input[name="carEndPeriod"]').val().trim();
+	            let compName = row.find('input[name="compName"]').val().trim();
+	            let task = row.find('input[name="task"]').val().trim();
+	            let carLocation = row.find('input[name="carLocation"]').val().trim();
+	            
+		        // 입력값 검증
+		        if (startPeriod != '' || endPeriod != '' || compName != '' 
+		        		|| task != '' || carLocation != '') {
+		            // 하나라도 입력된 경우
+		            if (!startPeriod || !endPeriod || !compName || !task || !carLocation) {
+		                alert('모든 경력 입력값을 작성해야 합니다.');
+		                careerValid = false; // 유효성 검사 실패
+		                return false; // 다음 항목으로 이동
+		            }
+
+		            // 모든 필드가 입력된 경우, 입력 조건 검증
+		            if (!/^\d{4}\.\d{2}$/.test(startPeriod)) {
+		                alert('시작 기간은 YYYY.MM 형식으로 입력하세요.');
+		                row.find('input[name="carStartPeriod"]').focus();
+		                careerValid = false;
+		                return false; // 다음 항목으로 이동
+		            } else if (!/^\d{4}\.\d{2}$/.test(endPeriod)) {
+		                alert('종료 기간은 YYYY.MM 형식으로 입력하세요.');
+		                row.find('input[name="carEndPeriod"]').focus();
+		                careerValid = false;
+		                return false; // 다음 항목으로 이동
+		            }
+		         	// 년도 및 월 조건 확인
+			        let startYear = parseInt(startPeriod.substring(0, 4));
+			        let startMonth = parseInt(startPeriod.substring(5, 7));
+			        let endYear = parseInt(endPeriod.substring(0, 4));
+			        let endMonth = parseInt(endPeriod.substring(5, 7));
+			        
+			        if (startYear < 1900 || startYear > 2030 
+			        		|| startMonth < 1 || startMonth > 12) {
+			            alert('잘못된 기간을 입력했습니다. 년도(1900~2030)과 월(01~12) 범위에 해당한 값을 입력해주세요.');
+			            nthRow.find('input[name="carStartPeriod"]').focus();
+			            careerValid = false;
+			            return false;
+			        } else if (endYear < 1900 || endYear > 2030
+			        			||endMonth < 1 || endMonth > 12) {
+			            alert('잘못된 기간을 입력했습니다. 년도(1900~2030)과 월(01~12) 범위에 해당한 값을 입력해주세요.');
+			            nthRow.find('input[name="carEndPeriod"]').focus();
+			            careerValid = false;
+			            return false;
+			        }
+			        
+		            // 부서/직급/직책 으로 입력
+		            if (task.split('/').length !== 3) {
+		                alert('부서/직급/직책 형식이 올바르지 않습니다.');
+		                row.find('input[name="task"]').focus();
+		                careerValid = false;
+		                return false; // 다음 항목으로 이동
+		            }
+		        }
+		    });
+	     	// 실제 데이터 n번째 행의 유효성 검증(실제 행이 2개 이상일 때)
+	     	let carRowCount = $j('#career tr').length - 1;
+	        
+	     	if (carRowCount >= 2) {
+	            let nthRow = $j('#career tr').eq(carRowCount); // n번째 행
+	            let nthStartPeriod = nthRow.find('input[name="carStartPeriod"]').val();
+	            let nthEndPeriod = nthRow.find('input[name="carEndPeriod"]').val();
+	            let nthCompName = nthRow.find('input[name="compName"]').val();
+	            let nthTask = nthRow.find('input[name="task"]').val();
+	            let nthCarLocation = nthRow.find('input[name="carLocation"]').val();
+	         	
+	            // null 체크 후 trim()
+	            nthStartPeriod = (nthStartPeriod ? nthStartPeriod.trim() : '');
+	            nthEndPeriod = (nthEndPeriod ? nthEndPeriod.trim() : '');
+	            nthCompName = (nthCompName ? nthCompName.trim() : '');
+	            nthTask = (nthTask ? nthTask.trim() : '');
+	            nthCarLocation = (nthCarLocation ? nthCarLocation.trim() : '');
+	            
+	            // n번째 행의 입력값 검증
+	            if(nthStartPeriod == '' && nthEndPeriod == ''
+            		&& nthCompName == '' && nthTask == '' && nthCarLocation == '') {
+	            	
+	            } else if (nthStartPeriod == '' || nthEndPeriod == ''
+            		|| nthCompName == '' || nthTask == ''
+            		|| nthCarLocation == '') {
+	                alert(carRowCount + '번째 경력의 입력값을 모두 작성해야 합니다.');
+	                careerValid = false;
+	                return;
+	            }
+	            
+	            if(nthStartPeriod != '' && nthEndPeriod != ''
+	            	&& nthCompName != '' && nthTask != '' && nthCarLocation != '') {
+	            	
+		            // 모든 필드가 입력된 경우, 입력 조건 검증
+		            if (!/^\d{4}\.\d{2}$/.test(nthStartPeriod)) {
+		                alert('시작 기간은 YYYY.MM 형식으로 입력하세요.');
+		                nthRow.find('input[name="carStartPeriod"]').focus();
+		                careerValid = false;
+		                return false; // 다음 항목으로 이동
+		            } else if (!/^\d{4}\.\d{2}$/.test(nthEndPeriod)) {
+		                alert('종료 기간은 YYYY.MM 형식으로 입력하세요.');
+		                nthRow.find('input[name="carEndPeriod"]').focus();
+		                careerValid = false;
+		                return false; // 다음 항목으로 이동
+		            }
+		         	// 년도 및 월 조건 확인
+			        let startYear = parseInt(nthStartPeriod.substring(0, 4));
+			        let startMonth = parseInt(nthStartPeriod.substring(5, 7));
+			        let endYear = parseInt(nthEndPeriod.substring(0, 4));
+			        let endMonth = parseInt(nthEndPeriod.substring(5, 7));
+			        
+			        if (startYear < 1900 || startYear > 2030 
+			        		|| startMonth < 1 || startMonth > 12) {
+			            alert('잘못된 기간을 입력했습니다. 년도(1900~2030)과 월(01~12) 범위에 해당한 값을 입력해주세요.');
+			            nthRow.find('input[name="carStartPeriod"]').focus();
+			            careerValid = false;
+			            return false;
+			        } else if (endYear < 1900 || endYear > 2030
+			        			||endMonth < 1 || endMonth > 12) {
+			            alert('잘못된 기간을 입력했습니다. 년도(1900~2030)과 월(01~12) 범위에 해당한 값을 입력해주세요.');
+			            nthRow.find('input[name="carEndPeriod"]').focus();
+			            careerValid = false;
+			            return false;
+			        }
+			        
+		            // 부서/직급/직책 으로 입력
+		            if (nthTask.split('/').length !== 3) {
+		                alert('부서/직급/직책 형식이 올바르지 않습니다.');
+		                nthRow.find('input[name="task"]').focus();
+		                careerValid = false;
+		                return false; // 다음 항목으로 이동
+		            }
+	            }
+	        }
+	        
+		    // 모든 유효성 검사 통과 시 처리
+		    if (!careerValid) {
+		    	return;
+		    }
+		    
+		    // certificateList를 반복하면서 입력값 검증
+		    let certValid = true; // 유효성 검사 플래그
+	        let certRows = $j('#certificate'); // 모든 certificate 행 선택
+	
+	        certRows.each(function() {
+	            let row = $j(this); // 현재 행
+	            let qualifiName = row.find('input[name="qualifiName"]').val().trim();
+	            let acquDate = row.find('input[name="acquDate"]').val().trim();
+	            let organizeName = row.find('input[name="organizeName"]').val().trim();
+
+		        // 입력값 검증
+		        if (qualifiName || acquDate || organizeName) {
+		            // 하나라도 입력된 경우
+		            if (!qualifiName || !acquDate || !organizeName) {
+		                alert('모든 자격증 입력사항을 작성해야 합니다.');
+		                certValid = false; // 유효성 검사 실패
+		                return; // 다음 항목으로 이동
+		            }
+
+		            // 모든 필드가 입력된 경우, 입력 조건 검증
+		            // 취득일 : 정규 표현식으로 형식 검증
+		            if (!/^\d{4}\.\d{2}\.\d{2}$/.test(acquDate)) {
+		            	alert('취득일은 YYYY.MM.DD 형식으로 입력하세요.');
+		            	row.find('input[name="acquDate"]').focus();
+		            	certValid = false;
+		                return false;
+		            }
+
+		            // 년월일 조건 확인
+		            let year = parseInt(acquDate.substring(0, 4));
+		            let month = parseInt(acquDate.substring(5, 7));
+		            let day = parseInt(acquDate.substring(8, 10));
+
+					// 년도 범위 체크
+					if (year < 1900 || year > 2030) {
+		            	alert('잘못된 날짜입니다. 년도(1900~2030)에 해당한 값을 입력해주세요.');
+		            	row.find('input[name="acquDate"]').focus();
+		            	certValid = false;
+		                return false;
+		            }
+
+		            // 월별 일수 체크
+		            let isValidAcqu = true;
+		            switch (month) {
+		                case 1: case 3: case 5: case 7: case 8: case 10: case 12:
+		                    if (day < 1 || day > 31) {
+		                        isValidAcqu = false;
+		                    }
+		                    break;
+		                case 4: case 6: case 9: case 11:
+		                    if (day < 1 || day > 30) {
+		                        isValidAcqu = false;
+		                    }
+		                    break;
+		                case 2:
+		                    if ((year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0)) {
+		                        if (day < 1 || day > 29) {
+		                            isValidAcqu = false;
+		                        }
+		                    } else {
+		                        if (day < 1 || day > 28) {
+		            	            isValidAcqu = false;
+		                        }
+		                    }
+		                    break;
+		                default:
+		                    isValidAcqu = false;
+		            }
+
+		            if (!isValidAcqu) {
+		            	alert('잘못된 날짜입니다. 월(01~12)과 일(01~31)에 해당한 값을 입력해주세요.');
+		            	row.find('input[name="acquDate"]').focus();
+		            	certValid = false;
+		                return false;
+		            }
+		        }
+		    });
+	        
+	     	// 실제 데이터 n번째 행의 유효성 검증(실제 행이 2개 이상일 때)
+	     	let certRowCount = $j('#certificate tr').length - 1;
+// 	     	console.log("certificate tr의 개수 : " + certRowCount);
+	     	
+	        if (certRowCount >= 2) {
+	            let nthRow = $j('#certificate tr').eq(certRowCount); // n번째 행
+	            let nthQualifiName = nthRow.find('input[name="qualifiName"]').val();
+	            let nthAcquDate = nthRow.find('input[name="acquDate"]').val();
+	            let nthOrganizeName = nthRow.find('input[name="organizeName"]').val();
+	         	
+	            // null 체크 후 trim()
+	            nthQualifiName = (nthQualifiName ? nthQualifiName.trim() : '');
+	            nthAcquDate = (nthAcquDate ? nthAcquDate.trim() : '');
+	            nthOrganizeName = (nthOrganizeName ? nthOrganizeName.trim() : '');
+
+	            // n번째 행의 입력값 검증
+	            if(nthQualifiName == '' && nthAcquDate == '' && nthOrganizeName == '') {
+	            	
+	            } else if (nthQualifiName == '' || nthAcquDate == ''
+            		|| nthOrganizeName == '') {
+	                alert(certRowCount + '번째 자격증의 입력값을 모두 작성해야 합니다.');
+	                certValid = false;
+	                return;
+	            }
+	            
+	            if(nthQualifiName != '' && nthAcquDate != '' && nthOrganizeName != '') {
+		            // 모든 필드가 입력된 경우, 입력 조건 검증
+		            // 취득일 : 정규 표현식으로 형식 검증
+		            if (!/^\d{4}\.\d{2}\.\d{2}$/.test(nthAcquDate)) {
+		            	alert('취득일은 YYYY.MM.DD 형식으로 입력하세요.');
+		            	nthRow.find('input[name="acquDate"]').focus();
+		            	certValid = false;
+		                return false;
+		            }
+
+		            // 년월일 조건 확인
+		            let year = parseInt(nthAcquDate.substring(0, 4));
+		            let month = parseInt(nthAcquDate.substring(5, 7));
+		            let day = parseInt(nthAcquDate.substring(8, 10));
+
+					// 년도 범위 체크
+					if (year < 1900 || year > 2030) {
+		            	alert('잘못된 날짜입니다. 년도(1900~2030)에 해당한 값을 입력해주세요.');
+		            	nthRow.find('input[name="acquDate"]').focus();
+		            	certValid = false;
+		                return false;
+		            }
+
+		            // 월별 일수 체크
+		            let isValidAcqu = true;
+		            switch (month) {
+		                case 1: case 3: case 5: case 7: case 8: case 10: case 12:
+		                    if (day < 1 || day > 31) {
+		                        isValidAcqu = false;
+		                    }
+		                    break;
+		                case 4: case 6: case 9: case 11:
+		                    if (day < 1 || day > 30) {
+		                        isValidAcqu = false;
+		                    }
+		                    break;
+		                case 2:
+		                    if ((year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0)) {
+		                        if (day < 1 || day > 29) {
+		                            isValidAcqu = false;
+		                        }
+		                    } else {
+		                        if (day < 1 || day > 28) {
+		            	            isValidAcqu = false;
+		                        }
+		                    }
+		                    break;
+		                default:
+		                    isValidAcqu = false;
+		            }
+
+		            if (!isValidAcqu) {
+		            	alert('잘못된 날짜입니다. 월(01~12)과 일(01~31)에 해당한 값을 입력해주세요.');
+		            	nthRow.find('input[name="acquDate"]').focus();
+		            	certValid = false;
+		                return false;
+		            }
+	            }
+	        }	
+		    // 모든 유효성 검사 통과 시 처리
+		    if (!certValid) {
+		    	return;
+		    }
+
+		    // AJAX 연결을 위한 데이터 전달
 			// 전체 폼 데이터를 직렬화
 		    const param = $j('#resumeForm').not('[name="eduChk, carChk, certChk"]').serialize();
 		    console.log("param : " + param);
@@ -217,6 +750,7 @@
 			});
 			
 		});	
+		
 		
 		//학력 행 추가
 		$j('#eduAddRow').on('click', function(event){
@@ -276,6 +810,7 @@
 			});
 			
 		});
+		
 		//경력 행 추가
 		$j('#careerAddRow').on('click', function(event){
 			event.preventDefault();
@@ -319,6 +854,7 @@
 			});
 			
 		});
+		
 		//자격증 행 추가
 		$j('#certifiAddRow').on('click', function(event){
 			event.preventDefault();
@@ -562,13 +1098,9 @@
 				error : function(jqXHR, textStatus, errorThrown) {
 					alert("오류 발생 : " + jqXHR + ", " + textStatus + ", " + errorThrown);
 				}
-				
 			});
-		    
 		});
-		
 	});
-
 </script>
 <body>
 <h2 style="text-align: center;">입사 지원서</h2>
@@ -892,7 +1424,7 @@
 			</c:forEach>
 			
 			<!-- certificateList가 비어있을 때 기본 입력 폼 추가 -->
-		    <c:if test="${empty certificateList}">
+		    <c:if test="${empty certiList}">
 		        <tr>
 		            <td>
 						<input type="hidden" name="certSeq" value="${certificate.certSeq}"> 

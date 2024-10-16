@@ -10,7 +10,6 @@
 <script type="text/javascript">
 
 	$j(document).ready(function(event){
-		
 		//main.jsp에서 세션 종료 시, 재로그인
 		var urlParams = new URLSearchParams(window.location.search);
 		var msg = urlParams.get('msg');
@@ -19,23 +18,17 @@
 		}
 		
 		//입력 조건 확인
-		//name 한글만 입력
-		$j('#name').on('input', function(){
+		// 1)name 한글만 입력
+		$j('#name').on('keyup', function(){
 			let name = $j(this).val().replace(/[^\u3131-\u318E\uac00-\ud7a3]/g, ''); //한글만 표기
 			$j(this).val(name);
 		});
 		
-		//phone 숫자만 입력
-		$j('#phone').on('input', function(){
-			let input = $j(this);
-			let phone = input.val();
-			
-			let filterPhone = phone.replace(/[^0-9]/g, ''); //숫자만 남김
-			
-			if(phone !== filterPhone) {
-				input.val(filterPhone);
-			}
-		});
+		// 2)phone 숫자만 입력
+		$j('#phone').on('keyup', function(){
+        	let phone = $j(this).val().replace(/[^\0-9]/g, '');
+        	$j(this).val(phone);
+        });
 		
 		//입사지원 클릭
 		$j('#login').on("click", function(event){
@@ -80,7 +73,7 @@
 		    }
 		    if(phone.length < 11) {
 				alert('번호 11자리를 입력하세요.');
-				$j(this).focuse();
+				$j(this).focus();
 				return false;
 			}
 		    
