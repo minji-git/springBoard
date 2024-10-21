@@ -128,67 +128,10 @@
 		        if (!this.value 
 		        		&& this.name !== 'eduChk'
 		        		&& this.name !== 'eduSeq') {
-		            alert("\"" + this.name + this.title + "\"을(를) 입력하세요.");
+		            alert("\"" + this.title + "\"을(를) 입력하세요.");
 		            this.focus();
 		            isValidRequired = false;
 		            return false; // each()를 중단
-//		            
-					//생년월일 형식 검증
-					let birth = $j('#birth').val().trim();
-					if(birth != null || birth != "") {
-						if(!/^\d{6}$/.test(birth)) {
-							alert('생년월일은 YYMMDD 형식으로 입력하세요.');
-							$j('#birth').focus();
-							return false;
-						}
-						let yy = parseInt(birth.substring(0,2));
-						let mm = parseInt(birth.substring(2, 4));
-			            let dd = parseInt(birth.substring(4, 6));
-			            
-			            //월별 일수 체크
-			            let isValidDate = true;
-			            switch(mm) {
-				            case 1: case 3: case 5: case 7: case 8: case 10: case 12:
-				            	if(dd < 1 || dd > 31) {
-				            		isValidDate = false;
-				            	}
-				            	break;
-				            case 4: case 6: case 9: case 11:
-				            	if(dd < 1 || dd > 30) {
-				            		isValidDate = false;
-				            	}
-				            	break;
-				            //윤년 체크
-				            case 2:
-				            	//29일
-				            	if((yy % 4 === 0 && yy % 100 !== 0) || (yy % 400 === 0)) {
-				            		if(dd < 1 || dd > 29) {
-				            			isValidDate = false;
-				            		}
-				            	} else {
-				            		if(dd < 1 || dd > 28) {
-				            			isValidDate = false;
-				            		}
-				            	}
-				            	break;
-			            	default: isValidDate = false;
-			            }
-			            if(!isValidDate) {
-			            	alert('잘못된 날짜입니다. 월(01~12)과 일(01~31)에 해당한 값을 입력해주세요.');
-			            	$j('#birth').focus();
-			                return false;
-			            }
-					}
-		            
-		            //이메일 형식 검증
-		            let email = $j('input[name="email"]').val().trim();
-		            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-		                alert("유효한 이메일 형식(xxx@naver.com)에 맞게 입력하세요.");
-		                $j('input[name="email"]').focus();
-		                return false;
-		            }
-		            
-//		            
 		        }
 		    });
 		    
@@ -196,64 +139,69 @@
 		        return; // 필수 입력 검사 실패 시 AJAX 요청 중단
 		    }
 		    
-// 		  	//생년월일 형식 검증
-// 			let birth = $j('#birth').val().trim();
-// 			if(!/^\d{6}$/.test(birth)) {
-// 				alert('생년월일은 YYMMDD 형식으로 입력하세요.');
-// 				$j('#birth').focus();
-// 				return false;
-// 			}
-// 			let yy = parseInt(birth.substring(0,2));
-// 			let mm = parseInt(birth.substring(2, 4));
-//             let dd = parseInt(birth.substring(4, 6));
+		  	//생년월일 형식 검증
+			let birth = $j('#birth').val().trim();
+			if (birth !== "") {
+				if(!/^\d{6}$/.test(birth)) {
+					alert('생년월일은 YYMMDD 형식으로 입력하세요.');
+					$j('#birth').focus();
+					return false;
+				}
+			}
+			
+			let yy = parseInt(birth.substring(0,2));
+			let mm = parseInt(birth.substring(2, 4));
+            let dd = parseInt(birth.substring(4, 6));
             
-//             //월별 일수 체크
-//             let isValidDate = true;
-//             switch(mm) {
-// 	            case 1: case 3: case 5: case 7: case 8: case 10: case 12:
-// 	            	if(dd < 1 || dd > 31) {
-// 	            		isValidDate = false;
-// 	            	}
-// 	            	break;
-// 	            case 4: case 6: case 9: case 11:
-// 	            	if(dd < 1 || dd > 30) {
-// 	            		isValidDate = false;
-// 	            	}
-// 	            	break;
-// 	            //윤년 체크
-// 	            case 2:
-// 	            	//29일
-// 	            	if((yy % 4 === 0 && yy % 100 !== 0) || (yy % 400 === 0)) {
-// 	            		if(dd < 1 || dd > 29) {
-// 	            			isValidDate = false;
-// 	            		}
-// 	            	} else {
-// 	            		if(dd < 1 || dd > 28) {
-// 	            			isValidDate = false;
-// 	            		}
-// 	            	}
-// 	            	break;
-//             	default: isValidDate = false;
-//             }
-//             if(!isValidDate) {
-//             	alert('잘못된 날짜입니다. 월(01~12)과 일(01~31)에 해당한 값을 입력해주세요.');
-//             	$j('#birth').focus();
-//                 return false;
-//             }
+            //월별 일수 체크
+            let isValidDate = true;
+            switch(mm) {
+	            case 1: case 3: case 5: case 7: case 8: case 10: case 12:
+	            	if(dd < 1 || dd > 31) {
+	            		isValidDate = false;
+	            	}
+	            	break;
+	            case 4: case 6: case 9: case 11:
+	            	if(dd < 1 || dd > 30) {
+	            		isValidDate = false;
+	            	}
+	            	break;
+	            //윤년 체크
+	            case 2:
+	            	//29일
+	            	if((yy % 4 === 0 && yy % 100 !== 0) || (yy % 400 === 0)) {
+	            		if(dd < 1 || dd > 29) {
+	            			isValidDate = false;
+	            		}
+	            	} else {
+	            		if(dd < 1 || dd > 28) {
+	            			isValidDate = false;
+	            		}
+	            	}
+	            	break;
+            	default: isValidDate = false;
+            }
+            if(!isValidDate) {
+            	alert('잘못된 날짜입니다. 월(01~12)과 일(01~31)에 해당한 값을 입력해주세요.');
+            	$j('#birth').focus();
+                return false;
+            }
             
-//             //이메일 형식 검증
-//             let email = $j('input[name="email"]').val().trim();
-//             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-//                 alert("유효한 이메일 형식(xxx@naver.com)에 맞게 입력하세요.");
-//                 $j('input[name="email"]').focus();
-//                 return false;
-//             }
-		    
+            //이메일 형식 검증
+            let email = $j('input[name="email"]').val().trim();
+            if(email !== "") {
+	            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+	                alert("유효한 이메일 형식(xxx@naver.com)에 맞게 입력하세요.");
+	                $j('input[name="email"]').focus();
+	                return false;
+	            }
+			}
+		       
             // educationList를 반복하면서 입력값 검증
 		    let eduValid = true; // 유효성 검사 플래그
 	        let eduRows = $j('#education'); // 모든 education 행 선택
 	
-	        eduRows.each(function() {
+	        eduRows.each(function() {      	
 	            let row = $j(this); // 현재 행
 	            
  				let startPeriod = $j(this).find('input[name="startPeriod"]').val();
@@ -421,6 +369,18 @@
 		            // 하나라도 입력된 경우
 		            if (!startPeriod || !endPeriod || !compName || !task || !carLocation) {
 		                alert('모든 경력 입력값을 작성해야 합니다.');
+		                // 빈값인 input 필드로 포커스 이동
+		                if (!startPeriod) {
+		                    row.find('input[name="carStartPeriod"]').focus();
+		                } else if (!endPeriod) {
+		                    row.find('input[name="carEndPeriod"]').focus();
+		                } else if (!compName) {
+		                    row.find('input[name="compName"]').focus();
+		                } else if (!task) {
+		                    row.find('input[name="task"]').focus();
+		                } else if (!carLocation) {
+		                    row.find('input[name="carLocation"]').focus();
+		                }
 		                careerValid = false; // 유효성 검사 실패
 		                return false; // 다음 항목으로 이동
 		            }
@@ -489,9 +449,23 @@
             		&& nthCompName == '' && nthTask == '' && nthCarLocation == '') {
 	            	
 	            } else if (nthStartPeriod == '' || nthEndPeriod == ''
+// 	            if (nthStartPeriod == '' || nthEndPeriod == ''
             		|| nthCompName == '' || nthTask == ''
             		|| nthCarLocation == '') {
 	                alert(carRowCount + '번째 경력의 입력값을 모두 작성해야 합니다.');
+	             	
+	                // 빈값인 input 필드로 포커스 이동
+	                if (!nthStartPeriod) {
+	                	nthRow.find('input[name="carStartPeriod"]').focus();
+	                } else if (!nthEndPeriod) {
+	                	nthRow.find('input[name="carEndPeriod"]').focus();
+	                } else if (!nthCompName) {
+	                	nthRow.find('input[name="compName"]').focus();
+	                } else if (!nthTask) {
+	                	nthRow.find('input[name="task"]').focus();
+	                } else if (!nthCarLocation) {
+	                	nthRow.find('input[name="carLocation"]').focus();
+	                }
 	                careerValid = false;
 	                return;
 	            }
@@ -561,6 +535,16 @@
 		            // 하나라도 입력된 경우
 		            if (!qualifiName || !acquDate || !organizeName) {
 		                alert('모든 자격증 입력사항을 작성해야 합니다.');
+		             	
+		                // 빈값인 input 필드로 포커스 이동
+		                if (!qualifiName) {
+		                    row.find('input[name="qualifiName"]').focus();
+		                } else if (!acquDate) {
+		                    row.find('input[name="acquDate"]').focus();
+		                } else if (!organizeName) {
+		                    row.find('input[name="organizeName"]').focus();
+		                }
+		                
 		                certValid = false; // 유효성 검사 실패
 		                return; // 다음 항목으로 이동
 		            }
@@ -645,6 +629,16 @@
 	            } else if (nthQualifiName == '' || nthAcquDate == ''
             		|| nthOrganizeName == '') {
 	                alert(certRowCount + '번째 자격증의 입력값을 모두 작성해야 합니다.');
+	             	
+	                // 빈값인 input 필드로 포커스 이동
+	                if (!nthQualifiName) {
+	                	nthRow.find('input[name="qualifiName"]').focus();
+	                } else if (!nthAcquDate) {
+	                	nthRow.find('input[name="acquDate"]').focus();
+	                } else if (!nthOrganizeName) {
+	                	nthRow.find('input[name="organizeName"]').focus();
+	                }
+	                
 	                certValid = false;
 	                return;
 	            }
@@ -725,10 +719,15 @@
 				data : param,
 				dataType : "json",
 				success : function(resp, textStatus, jqXHR){
-					if(resp.recruit == "Y" 
-							&& (resp.insertEduCnt > 0 || resp.updateEduCnt > 0 || resp.unchangedEduCnt > 0)) {
-						alert("recruit, education 수정 및 저장 완료");
-						
+					if(resp.recruit) {
+						if(resp.recruit == "Y") {
+							alert("recruit 수정");
+						} else if(resp.recruit == "N") {
+							alert("recruit 저장");
+						}
+						if(resp.insertCarCnt > 0 || resp.updateCarCnt > 0 || resp.unchangedCarCnt > 0) {
+			                alert("education 수정 및 저장 완료");
+						}
 						if(resp.insertCarCnt > 0 || resp.updateCarCnt > 0 || resp.unchangedCarCnt > 0) {
 			                alert("career 수정 및 저장 완료");
 						}
@@ -955,11 +954,6 @@
 					$j('.eduChk:checked').each(function(){
 						$j(this).closest('tr').remove();
 					});
-					
-					// recruit/main.do 화면으로 리다이렉트 처리
-					if(resp.redirectUrl) {
-						window.location.href = resp.redirectUrl;
-					}
 				},
 				error : function(jqXHR, textStatus, errorThrown) {
 					alert("오류 발생 : " + jqXHR + ", " + textStatus + ", " + errorThrown);
@@ -999,6 +993,13 @@
 		    var eduSeqs = []; // 학력 Seq 수집
 		    var certSeqs = []; // 자격증 Seq 수집
 		    
+			// 현재 남아있는 행 수 확인
+		    var carRowCount = $j('#career tr').length; //하나는 체크박스 행, 하나는 데이터 행
+		    // 최소 1개 행은 표시
+		    if(carRowCount - carSeqs.length <= 1) {
+		        return;
+		    }
+		    
 		    $j.ajax({
 				url : "/recruit/deleteRow.do",
 				type: "POST",
@@ -1023,11 +1024,6 @@
 					$j('.carChk:checked').each(function(){
 						$j(this).closest('tr').remove();
 					});
-					
-					// recruit/main.do 화면으로 리다이렉트 처리
-					if(resp.redirectUrl) {
-						window.location.href = resp.redirectUrl;
-					}
 				},
 				error : function(jqXHR, textStatus, errorThrown) {
 					alert("오류 발생 : " + jqXHR + ", " + textStatus + ", " + errorThrown);
@@ -1065,6 +1061,13 @@
 		    var eduSeqs = [];
 		    var carSeqs = [];
 		    
+		 	// 현재 남아있는 행 수 확인
+		    var certRowCount = $j('#certificate tr').length; //하나는 체크박스 행, 하나는 데이터 행
+		    // 최소 1개 행은 표시
+		    if(certRowCount - certSeqs.length <= 1) {
+		        return;
+		    }
+		    
 		    $j.ajax({
 				url : "/recruit/deleteRow.do",
 				contentType : "application/json",
@@ -1089,11 +1092,6 @@
 					$j('.certChk:checked').each(function(){
 						$j(this).closest('tr').remove();
 					});
-					
-					// recruit/main.do 화면으로 리다이렉트 처리
-					if(resp.redirectUrl) {
-						window.location.href = resp.redirectUrl;
-					}
 				},
 				error : function(jqXHR, textStatus, errorThrown) {
 					alert("오류 발생 : " + jqXHR + ", " + textStatus + ", " + errorThrown);

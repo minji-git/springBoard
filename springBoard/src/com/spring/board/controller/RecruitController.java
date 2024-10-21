@@ -271,10 +271,28 @@ System.out.println("> recruitSave 컨트롤러 수행~~");
 		Map<String, Object> map = new HashMap<String, Object>();
 		
 		try {
-			// RecruitVO 내용이 update 하지 않을 경우, 매퍼 update X
-			// RecruitVo 저장
-		    int recruitUpdate = boardService.recruitUpdate(recruitVo);
-		    map.put("recruit", (recruitUpdate > 0) ? "Y" : "N");
+			RecruitVo isRecruit = boardService.loginChk(recruitVo);
+			if(isRecruit.getBirth() != null && isRecruit.getField3() != null
+				    && isRecruit.getEmail() != null && isRecruit.getAddr() != null
+				    && isRecruit.getLocation() != null && isRecruit.getWorkType() != null) {
+				//isRecruit 값이 모두 기입됐을 때, 컬럼값 동일한지 확인 후 1)동일하면 저장만! 2)다르다면 UPDATE 처리
+				if(isRecruit.getBirth().equals(recruitVo.getBirth()) && isRecruit.getField3().equals(recruitVo.getField3()) 
+						&& isRecruit.getEmail().equals(recruitVo.getEmail()) && isRecruit.getAddr().equals(recruitVo.getAddr())
+						&& isRecruit.getLocation().equals(recruitVo.getLocation()) && isRecruit.getWorkType().equals(recruitVo.getWorkType())) {
+					System.out.println(">> recruitVo 정보가 동일함!!");
+					map.put("recruit", "N");
+				} else {
+					System.out.println(">> recruitVo 정보가 수정됨!!");
+					// RecruitVo 저장
+					int recruitUpdate = boardService.recruitUpdate(recruitVo);
+					map.put("recruit", (recruitUpdate > 0) ? "Y" : "N");
+				}
+			} else {
+				// isRecruit 중 기입하지 않은 컬럼이 존재하면 기존 recruitVo를 update
+				System.out.println(">> recruit 처음 입력됨!!");
+				int recruitUpdate = boardService.recruitUpdate(recruitVo);
+				map.put("recruit", (recruitUpdate > 0) ? "Y" : "N");
+			}
 		    
 		    // 기존 학력 데이터 가져오기
 		    EducationVo edu = new EducationVo();
@@ -580,9 +598,6 @@ System.out.println("> recruitSave 컨트롤러 수행~~");
 					}
 				}
 			}
-			// 저장 성공 시, 리다이렉트할 URL 추가
-			result.put("redirectUrl", "/recruit/main.do?seq=" + recruit.getSeq());
-			
 		} catch (Exception e) {
 			e.printStackTrace(); // 예외 메시지 출력
 		    result.put("error", "업데이트 중 오류 발생" + e.getMessage());
